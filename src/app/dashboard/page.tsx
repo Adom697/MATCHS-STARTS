@@ -80,6 +80,15 @@ export default async function DashboardPage() {
         </form>
       </div>
 
+      {!isAssistant && (
+        <Link
+          href="/profile/edit"
+          className="block w-full text-center border border-border text-foreground rounded-xl py-2.5 mb-3 text-sm hover:border-accent transition-colors"
+        >
+          Modifier mon profil
+        </Link>
+      )}
+
       <Link
         href="/matches/new"
         className="block w-full text-center bg-accent-strong hover:bg-accent text-black font-semibold rounded-xl py-3.5 mb-8 transition-colors"
