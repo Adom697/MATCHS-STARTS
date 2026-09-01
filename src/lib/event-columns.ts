@@ -1,0 +1,17 @@
+export const EVENT_TO_COLUMN: Record<string, string> = {
+  touche: 'touches',
+  passe_reussie: 'passes_reussies',
+  passe_ratee: 'passes_ratees',
+  dribble_reussi: 'dribbles_reussis',
+  dribble_rate: 'dribbles_rates',
+  tir_cadre: 'tirs_cadres',
+  tir_non_cadre: 'tirs_non_cadres',
+  but: 'buts',
+  passe_decisive: 'passes_decisives',
+  ballon_perdu: 'ballons_perdus',
+  ballon_recupere: 'ballons_recuperes',
+  faute_commise: 'fautes_commises',
+  faute_subie: 'fautes_subies',
+  carton_jaune: 'cartons_jaunes',
+  carton_rouge: 'cartons_rouges',
+};
