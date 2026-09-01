@@ -3,7 +3,12 @@ import { recordEvent, undoLastEvent, finishMatch } from '@/lib/actions/live';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 
-const BUTTON_GROUPS: { title: string; buttons: { type: string; label: string; tone?: 'positive' | 'negative' }[] }[] = [
+type ButtonGroup = {
+  title: string;
+  buttons: { type: string; label: string; tone?: 'positive' | 'negative' }[];
+};
+
+const OUTFIELD_GROUPS: ButtonGroup[] = [
   {
     title: 'Ballon',
     buttons: [{ type: 'touche', label: 'Touche de balle' }],
@@ -43,8 +48,42 @@ const BUTTON_GROUPS: { title: string; buttons: { type: string; label: string; to
     buttons: [
       { type: 'faute_commise', label: 'Faute commise', tone: 'negative' },
       { type: 'faute_subie', label: 'Faute subie', tone: 'positive' },
-      { type: 'carton_jaune', label: 'Carton jaune', tone: 'negative' },
-      { type: 'carton_rouge', label: 'Carton rouge', tone: 'negative' },
+      { type: 'carton_jaune', label: 'Carton jaune reçu', tone: 'negative' },
+      { type: 'carton_rouge', label: 'Carton rouge reçu', tone: 'negative' },
+    ],
+  },
+];
+
+const GOALKEEPER_GROUPS: ButtonGroup[] = [
+  {
+    title: 'Arrêts',
+    buttons: [
+      { type: 'arret', label: 'Arrêt', tone: 'positive' },
+      { type: 'but_encaisse', label: 'But encaissé', tone: 'negative' },
+      { type: 'penalty_arrete', label: 'Penalty arrêté', tone: 'positive' },
+    ],
+  },
+  {
+    title: 'Jeu au pied',
+    buttons: [
+      { type: 'touche', label: 'Touche de balle' },
+      { type: 'passe_reussie', label: 'Passe réussie', tone: 'positive' },
+      { type: 'passe_ratee', label: 'Passe ratée', tone: 'negative' },
+      { type: 'degagement_reussi', label: 'Dégagement réussi', tone: 'positive' },
+      { type: 'degagement_rate', label: 'Dégagement raté', tone: 'negative' },
+    ],
+  },
+  {
+    title: 'Sorties',
+    buttons: [{ type: 'sortie_aerienne_reussie', label: 'Sortie aérienne réussie', tone: 'positive' }],
+  },
+  {
+    title: 'Discipline',
+    buttons: [
+      { type: 'faute_commise', label: 'Faute commise', tone: 'negative' },
+      { type: 'faute_subie', label: 'Faute subie', tone: 'positive' },
+      { type: 'carton_jaune', label: 'Carton jaune reçu', tone: 'negative' },
+      { type: 'carton_rouge', label: 'Carton rouge reçu', tone: 'negative' },
     ],
   },
 ];
@@ -53,10 +92,17 @@ export default async function LiveMatchPage({ params }: { params: Promise<{ id: 
   const { id } = await params;
   const supabase = await createClient();
 
-  const { data: match } = await supabase.from('matches').select('*').eq('id', id).single();
+  const { data: match } = await supabase
+    .from('matches')
+    .select('*, players(position)')
+    .eq('id', id)
+    .single();
   const { data: stats } = await supabase.from('match_stats').select('*').eq('match_id', id).single();
 
   if (!match || !stats) redirect('/dashboard');
+
+  const isGoalkeeper = match.players?.position === 'Gardien';
+  const groups = isGoalkeeper ? GOALKEEPER_GROUPS : OUTFIELD_GROUPS;
 
   return (
     <div className="min-h-screen bg-background px-4 py-6 max-w-2xl mx-auto pb-32">
@@ -78,24 +124,45 @@ export default async function LiveMatchPage({ params }: { params: Promise<{ id: 
       </div>
 
       <div className="grid grid-cols-3 gap-2 mb-6">
-        <div className="bg-surface border border-border rounded-lg p-2.5 text-center">
-          <p className="text-lg font-bold text-accent">{stats.touches}</p>
-          <p className="text-[10px] text-muted">Touches</p>
-        </div>
-        <div className="bg-surface border border-border rounded-lg p-2.5 text-center">
-          <p className="text-lg font-bold text-accent">{stats.buts}</p>
-          <p className="text-[10px] text-muted">Buts</p>
-        </div>
-        <div className="bg-surface border border-border rounded-lg p-2.5 text-center">
-          <p className="text-lg font-bold text-accent">
-            {stats.passes_reussies}/{stats.passes_reussies + stats.passes_ratees}
-          </p>
-          <p className="text-[10px] text-muted">Passes</p>
-        </div>
+        {isGoalkeeper ? (
+          <>
+            <div className="bg-surface border border-border rounded-lg p-2.5 text-center">
+              <p className="text-lg font-bold text-accent">{stats.arrets}</p>
+              <p className="text-[10px] text-muted">Arrêts</p>
+            </div>
+            <div className="bg-surface border border-border rounded-lg p-2.5 text-center">
+              <p className="text-lg font-bold text-accent">{stats.buts_encaisses}</p>
+              <p className="text-[10px] text-muted">Buts encaissés</p>
+            </div>
+            <div className="bg-surface border border-border rounded-lg p-2.5 text-center">
+              <p className="text-lg font-bold text-accent">
+                {stats.degagements_reussis}/{stats.degagements_reussis + stats.degagements_rates}
+              </p>
+              <p className="text-[10px] text-muted">Dégagements</p>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="bg-surface border border-border rounded-lg p-2.5 text-center">
+              <p className="text-lg font-bold text-accent">{stats.touches}</p>
+              <p className="text-[10px] text-muted">Touches</p>
+            </div>
+            <div className="bg-surface border border-border rounded-lg p-2.5 text-center">
+              <p className="text-lg font-bold text-accent">{stats.buts}</p>
+              <p className="text-[10px] text-muted">Buts</p>
+            </div>
+            <div className="bg-surface border border-border rounded-lg p-2.5 text-center">
+              <p className="text-lg font-bold text-accent">
+                {stats.passes_reussies}/{stats.passes_reussies + stats.passes_ratees}
+              </p>
+              <p className="text-[10px] text-muted">Passes</p>
+            </div>
+          </>
+        )}
       </div>
 
       <div className="space-y-5">
-        {BUTTON_GROUPS.map((group) => (
+        {groups.map((group) => (
           <div key={group.title}>
             <h2 className="text-xs font-semibold text-muted uppercase tracking-wide mb-2">{group.title}</h2>
             <div className="grid grid-cols-2 gap-2">

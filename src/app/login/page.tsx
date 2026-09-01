@@ -36,6 +36,11 @@ export default async function LoginPage({
               className="w-full bg-surface-2 border border-border rounded-lg px-4 py-2.5 text-foreground focus:outline-none focus:border-accent"
               placeholder="••••••••"
             />
+            <div className="text-right mt-1.5">
+              <Link href="/forgot-password" className="text-accent text-xs">
+                Mot de passe oublié ?
+              </Link>
+            </div>
           </div>
 
           {error && <p className="text-danger text-sm">{error}</p>}

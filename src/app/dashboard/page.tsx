@@ -3,16 +3,26 @@ import { logOut } from '@/lib/actions/auth';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 
-const STAT_LABELS: Record<string, string> = {
+const OUTFIELD_STAT_LABELS: Record<string, string> = {
   touches: 'Touches de balle',
   passes_reussies: 'Passes réussies',
   passes_ratees: 'Passes ratées',
+  passes_decisives: 'Passes décisives',
   dribbles_reussis: 'Dribbles réussis',
   dribbles_rates: 'Dribbles ratés',
   tirs_cadres: 'Tirs cadrés',
-  tirs_non_cadres: 'Tirs non cadrés',
   buts: 'Buts',
-  passes_decisives: 'Passes décisives',
+};
+
+const GOALKEEPER_STAT_LABELS: Record<string, string> = {
+  arrets: 'Arrêts',
+  buts_encaisses: 'Buts encaissés',
+  penalties_arretes: 'Penaltys arrêtés',
+  degagements_reussis: 'Dégagements réussis',
+  degagements_rates: 'Dégagements ratés',
+  sorties_aeriennes_reussies: 'Sorties aériennes',
+  passes_reussies: 'Passes réussies',
+  passes_ratees: 'Passes ratées',
 };
 
 export default async function DashboardPage() {
@@ -41,6 +51,9 @@ export default async function DashboardPage() {
 
   if (!player) redirect('/onboarding');
 
+  const isGoalkeeper = player.position === 'Gardien';
+  const STAT_LABELS = isGoalkeeper ? GOALKEEPER_STAT_LABELS : OUTFIELD_STAT_LABELS;
+
   const { data: matches } = await supabase
     .from('matches')
     .select('*, match_stats(*)')
@@ -62,22 +75,36 @@ export default async function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-background px-5 py-8 max-w-2xl mx-auto">
-      <div className="flex items-start justify-between mb-8">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">
-            {player.first_name} {player.last_name}
-          </h1>
-          <p className="text-muted text-sm mt-0.5">
-            {player.current_club || 'Aucun club renseigné'}
-            {player.position ? ` · ${player.position}` : ''}
-            {player.jersey_number ? ` · #${player.jersey_number}` : ''}
-          </p>
-        </div>
+      <div className="flex justify-end mb-2">
         <form action={logOut}>
           <button type="submit" className="text-muted text-sm hover:text-foreground">
             Déconnexion
           </button>
         </form>
+      </div>
+
+      <div className="flex flex-col items-center text-center mb-8">
+        {player.avatar_url ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={player.avatar_url}
+            alt={player.first_name}
+            className="w-24 h-24 rounded-full object-cover border-2 border-accent"
+          />
+        ) : (
+          <div className="w-24 h-24 rounded-full bg-surface-2 border-2 border-border flex items-center justify-center text-muted text-3xl font-medium">
+            {player.first_name?.[0]}
+            {player.last_name?.[0]}
+          </div>
+        )}
+        <h1 className="text-2xl font-bold text-foreground mt-3">
+          {player.first_name} {player.last_name}
+        </h1>
+        <p className="text-muted text-sm mt-0.5">
+          {player.current_club || 'Aucun club renseigné'}
+          {player.position ? ` · ${player.position}` : ''}
+          {player.jersey_number ? ` · #${player.jersey_number}` : ''}
+        </p>
       </div>
 
       {!isAssistant && (

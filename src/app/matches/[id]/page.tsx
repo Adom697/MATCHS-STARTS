@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 
-const STAT_ROWS: { key: string; label: string }[] = [
+const OUTFIELD_ROWS: { key: string; label: string }[] = [
   { key: 'touches', label: 'Touches de balle' },
   { key: 'passes_reussies', label: 'Passes réussies' },
   { key: 'passes_ratees', label: 'Passes ratées' },
@@ -20,15 +20,37 @@ const STAT_ROWS: { key: string; label: string }[] = [
   { key: 'cartons_rouges', label: 'Cartons rouges' },
 ];
 
+const GOALKEEPER_ROWS: { key: string; label: string }[] = [
+  { key: 'arrets', label: 'Arrêts' },
+  { key: 'buts_encaisses', label: 'Buts encaissés' },
+  { key: 'penalties_arretes', label: 'Penaltys arrêtés' },
+  { key: 'degagements_reussis', label: 'Dégagements réussis' },
+  { key: 'degagements_rates', label: 'Dégagements ratés' },
+  { key: 'sorties_aeriennes_reussies', label: 'Sorties aériennes' },
+  { key: 'touches', label: 'Touches de balle' },
+  { key: 'passes_reussies', label: 'Passes réussies' },
+  { key: 'passes_ratees', label: 'Passes ratées' },
+  { key: 'fautes_commises', label: 'Fautes commises' },
+  { key: 'fautes_subies', label: 'Fautes subies' },
+  { key: 'cartons_jaunes', label: 'Cartons jaunes' },
+  { key: 'cartons_rouges', label: 'Cartons rouges' },
+];
+
 export default async function MatchDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const supabase = await createClient();
 
-  const { data: match } = await supabase.from('matches').select('*').eq('id', id).single();
+  const { data: match } = await supabase
+    .from('matches')
+    .select('*, players(position)')
+    .eq('id', id)
+    .single();
   const { data: stats } = await supabase.from('match_stats').select('*').eq('match_id', id).single();
 
   if (!match) redirect('/dashboard');
 
+  const isGoalkeeper = match.players?.position === 'Gardien';
+  const STAT_ROWS = isGoalkeeper ? GOALKEEPER_ROWS : OUTFIELD_ROWS;
   const hasScore = match.team_score !== null && match.opponent_score !== null;
 
   return (

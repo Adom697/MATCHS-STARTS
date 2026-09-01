@@ -28,7 +28,9 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const isAuthRoute = request.nextUrl.pathname.startsWith('/login') ||
-    request.nextUrl.pathname.startsWith('/signup');
+    request.nextUrl.pathname.startsWith('/signup') ||
+    request.nextUrl.pathname.startsWith('/forgot-password') ||
+    request.nextUrl.pathname.startsWith('/reset-password');
   const isPublicRoute = request.nextUrl.pathname.startsWith('/p/');
 
   if (!user && !isAuthRoute && !isPublicRoute && request.nextUrl.pathname !== '/') {

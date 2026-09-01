@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 
-const STAT_LABELS: Record<string, string> = {
+const OUTFIELD_LABELS: Record<string, string> = {
   touches: 'Touches de balle',
   passes_reussies: 'Passes réussies',
   passes_ratees: 'Passes ratées',
@@ -10,6 +10,16 @@ const STAT_LABELS: Record<string, string> = {
   dribbles_rates: 'Dribbles ratés',
   tirs_cadres: 'Tirs cadrés',
   buts: 'Buts',
+};
+
+const GOALKEEPER_LABELS: Record<string, string> = {
+  arrets: 'Arrêts',
+  buts_encaisses: 'Buts encaissés',
+  penalties_arretes: 'Penaltys arrêtés',
+  degagements_reussis: 'Dégagements réussis',
+  sorties_aeriennes_reussies: 'Sorties aériennes',
+  passes_reussies: 'Passes réussies',
+  passes_ratees: 'Passes ratées',
 };
 
 export default async function PublicPlayerPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -24,6 +34,9 @@ export default async function PublicPlayerPage({ params }: { params: Promise<{ s
     .maybeSingle();
 
   if (!player) notFound();
+
+  const isGoalkeeper = player.position === 'Gardien';
+  const STAT_LABELS = isGoalkeeper ? GOALKEEPER_LABELS : OUTFIELD_LABELS;
 
   const { data: matches } = await supabase
     .from('matches')
@@ -42,30 +55,28 @@ export default async function PublicPlayerPage({ params }: { params: Promise<{ s
 
   return (
     <div className="min-h-screen bg-background px-5 py-10 max-w-2xl mx-auto">
-      <div className="flex items-center gap-4 mb-8">
+      <div className="flex flex-col items-center text-center mb-8">
         {player.avatar_url ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={player.avatar_url}
             alt={player.first_name}
-            className="w-20 h-20 rounded-full object-cover border-2 border-accent"
+            className="w-24 h-24 rounded-full object-cover border-2 border-accent"
           />
         ) : (
-          <div className="w-20 h-20 rounded-full bg-surface-2 border border-border flex items-center justify-center text-muted text-2xl">
+          <div className="w-24 h-24 rounded-full bg-surface-2 border-2 border-border flex items-center justify-center text-muted text-3xl font-medium">
             {player.first_name?.[0]}
             {player.last_name?.[0]}
           </div>
         )}
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">
-            {player.first_name} {player.last_name}
-          </h1>
-          <p className="text-muted text-sm">
-            {player.current_club || 'Club non renseigné'}
-            {player.position ? ` · ${player.position}` : ''}
-            {player.jersey_number ? ` · #${player.jersey_number}` : ''}
-          </p>
-        </div>
+        <h1 className="text-2xl font-bold text-foreground mt-3">
+          {player.first_name} {player.last_name}
+        </h1>
+        <p className="text-muted text-sm mt-0.5">
+          {player.current_club || 'Club non renseigné'}
+          {player.position ? ` · ${player.position}` : ''}
+          {player.jersey_number ? ` · #${player.jersey_number}` : ''}
+        </p>
       </div>
 
       {player.achievements && (

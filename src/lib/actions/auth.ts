@@ -74,3 +74,17 @@ export async function logOut() {
   await supabase.auth.signOut();
   redirect('/login');
 }
+
+export async function requestPasswordReset(formData: FormData) {
+  const email = formData.get('email') as string;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://matchs-starts.vercel.app';
+
+  const supabase = await createClient();
+  await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${siteUrl}/reset-password`,
+  });
+
+  // Toujours rediriger vers le même message, que l'email existe ou non,
+  // pour ne pas révéler quels emails sont enregistrés.
+  redirect('/forgot-password?sent=1');
+}
