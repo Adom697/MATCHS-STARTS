@@ -10,6 +10,7 @@ export default function ResetPasswordPage() {
   const [error, setError] = useState('');
   const [ready, setReady] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [visible, setVisible] = useState(false);
   const router = useRouter();
   const supabase = createClient();
 
@@ -59,20 +60,30 @@ export default function ResetPasswordPage() {
         <form onSubmit={handleSubmit} className="bg-surface border border-border rounded-2xl p-6 space-y-4">
           <div>
             <label className="block text-sm text-muted mb-1.5">Nouveau mot de passe</label>
-            <input
-              type="password"
-              required
-              minLength={6}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-surface-2 border border-border rounded-lg px-4 py-2.5 text-foreground focus:outline-none focus:border-accent"
-              placeholder="6 caractères minimum"
-            />
+            <div className="relative">
+              <input
+                type={visible ? 'text' : 'password'}
+                required
+                minLength={6}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full bg-surface-2 border border-border rounded-lg px-4 py-2.5 pr-16 text-foreground focus:outline-none focus:border-accent"
+                placeholder="6 caractères minimum"
+              />
+              <button
+                type="button"
+                onClick={() => setVisible((v) => !v)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-accent font-medium"
+                tabIndex={-1}
+              >
+                {visible ? 'Cacher' : 'Afficher'}
+              </button>
+            </div>
           </div>
           <div>
             <label className="block text-sm text-muted mb-1.5">Confirme-le</label>
             <input
-              type="password"
+              type={visible ? 'text' : 'password'}
               required
               minLength={6}
               value={confirm}

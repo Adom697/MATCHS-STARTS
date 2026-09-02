@@ -1,4 +1,5 @@
 import { signUpPlayer, signUpAssistant } from '@/lib/actions/auth';
+import { PasswordInput } from '@/components/PasswordInput';
 import Link from 'next/link';
 
 export default async function SignupPage({
@@ -69,14 +70,7 @@ export default async function SignupPage({
           </div>
           <div>
             <label className="block text-sm text-muted mb-1.5">Mot de passe</label>
-            <input
-              name="password"
-              type="password"
-              required
-              minLength={6}
-              className="w-full bg-surface-2 border border-border rounded-lg px-4 py-2.5 text-foreground focus:outline-none focus:border-accent"
-              placeholder="6 caractères minimum"
-            />
+            <PasswordInput name="password" placeholder="6 caractères minimum" required minLength={6} />
           </div>
 
           {error && <p className="text-danger text-sm">{error}</p>}

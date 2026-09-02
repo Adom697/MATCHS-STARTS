@@ -1,4 +1,5 @@
 import { logIn } from '@/lib/actions/auth';
+import { PasswordInput } from '@/components/PasswordInput';
 import Link from 'next/link';
 
 export default async function LoginPage({
@@ -29,13 +30,7 @@ export default async function LoginPage({
           </div>
           <div>
             <label className="block text-sm text-muted mb-1.5">Mot de passe</label>
-            <input
-              name="password"
-              type="password"
-              required
-              className="w-full bg-surface-2 border border-border rounded-lg px-4 py-2.5 text-foreground focus:outline-none focus:border-accent"
-              placeholder="••••••••"
-            />
+            <PasswordInput name="password" placeholder="••••••••" required />
             <div className="text-right mt-1.5">
               <Link href="/forgot-password" className="text-accent text-xs">
                 Mot de passe oublié ?
