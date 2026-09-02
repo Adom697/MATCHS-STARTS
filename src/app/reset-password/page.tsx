@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
-export default function ResetPasswordPage() {
+function ResetPasswordForm() {
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [error, setError] = useState('');
@@ -12,13 +12,42 @@ export default function ResetPasswordPage() {
   const [submitting, setSubmitting] = useState(false);
   const [visible, setVisible] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const supabase = createClient();
 
   useEffect(() => {
-    // The recovery link puts the session in the URL; the browser client
-    // picks it up automatically on load. We just wait for that to settle.
-    supabase.auth.getSession().then(() => setReady(true));
-  }, [supabase]);
+    async function establishSession() {
+      const tokenHash = searchParams.get('token_hash');
+      const type = searchParams.get('type');
+
+      // Preferred path: our custom email link carries a token_hash that we
+      // exchange ourselves. This avoids the classic issue where email
+      // clients (Gmail included) "pre-click" links to scan them, which
+      // silently burns a one-time verification link before the person
+      // actually taps it.
+      if (tokenHash && type === 'recovery') {
+        const { error: verifyError } = await supabase.auth.verifyOtp({
+          token_hash: tokenHash,
+          type: 'recovery',
+        });
+        if (verifyError) {
+          setError('Le lien a expiré ou a déjà été utilisé. Redemande un lien depuis "Mot de passe oublié".');
+        }
+        setReady(true);
+        return;
+      }
+
+      // Fallback: legacy hash-based link already exchanged by the browser
+      // client on load.
+      const { data } = await supabase.auth.getSession();
+      if (!data.session) {
+        setError('Le lien a expiré ou a déjà été utilisé. Redemande un lien depuis "Mot de passe oublié".');
+      }
+      setReady(true);
+    }
+
+    establishSession();
+  }, [searchParams, supabase]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -39,7 +68,7 @@ export default function ResetPasswordPage() {
 
     if (updateError) {
       setError(
-        updateError.message.includes('session')
+        updateError.message.includes('session') || updateError.message.includes('token')
           ? 'Le lien a expiré ou a déjà été utilisé. Redemande un lien depuis "Mot de passe oublié".'
           : updateError.message
       );
@@ -104,5 +133,13 @@ export default function ResetPasswordPage() {
         </form>
       </div>
     </div>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={null}>
+      <ResetPasswordForm />
+    </Suspense>
   );
 }
