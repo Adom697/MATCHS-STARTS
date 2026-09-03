@@ -8,7 +8,8 @@ function ResetPasswordForm() {
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [error, setError] = useState('');
-  const [ready, setReady] = useState(false);
+  const [linkExpired, setLinkExpired] = useState(false);
+  const [checking, setChecking] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [visible, setVisible] = useState(false);
   const router = useRouter();
@@ -17,38 +18,29 @@ function ResetPasswordForm() {
 
   useEffect(() => {
     async function establishSession() {
-      const tokenHash = searchParams.get('token_hash');
-      const type = searchParams.get('type');
-      const code = searchParams.get('code');
+      try {
+        const tokenHash = searchParams.get('token_hash');
+        const type = searchParams.get('type');
+        const code = searchParams.get('code');
 
-      if (tokenHash && type === 'recovery') {
-        const { error: verifyError } = await supabase.auth.verifyOtp({
-          token_hash: tokenHash,
-          type: 'recovery',
-        });
-        if (verifyError) {
-          setError('Le lien a expiré ou a déjà été utilisé. Redemande un lien depuis "Mot de passe oublié".');
+        if (tokenHash && type === 'recovery') {
+          const { error: verifyError } = await supabase.auth.verifyOtp({
+            token_hash: tokenHash,
+            type: 'recovery',
+          });
+          if (verifyError) setLinkExpired(true);
+        } else if (code) {
+          const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+          if (exchangeError) setLinkExpired(true);
+        } else {
+          const { data } = await supabase.auth.getSession();
+          if (!data.session) setLinkExpired(true);
         }
-        setReady(true);
-        return;
+      } catch {
+        setLinkExpired(true);
+      } finally {
+        setChecking(false);
       }
-
-      if (code) {
-        const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
-        if (exchangeError) {
-          setError('Le lien a expiré ou a déjà été utilisé. Redemande un lien depuis "Mot de passe oublié".');
-        }
-        setReady(true);
-        return;
-      }
-
-      // Fallback: legacy hash-based link already exchanged by the browser
-      // client on load.
-      const { data } = await supabase.auth.getSession();
-      if (!data.session) {
-        setError('Le lien a expiré ou a déjà été utilisé. Redemande un lien depuis "Mot de passe oublié".');
-      }
-      setReady(true);
     }
 
     establishSession();
@@ -72,15 +64,49 @@ function ResetPasswordForm() {
     setSubmitting(false);
 
     if (updateError) {
-      setError(
-        updateError.message.includes('session') || updateError.message.includes('token')
-          ? 'Le lien a expiré ou a déjà été utilisé. Redemande un lien depuis "Mot de passe oublié".'
-          : updateError.message
-      );
+      if (updateError.message.toLowerCase().includes('session') || updateError.message.toLowerCase().includes('token')) {
+        setLinkExpired(true);
+      } else {
+        setError(updateError.message);
+      }
       return;
     }
 
     router.push('/dashboard');
+  }
+
+  if (checking) {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-6 bg-background">
+        <p className="text-muted text-sm">Vérification du lien...</p>
+      </div>
+    );
+  }
+
+  if (linkExpired) {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-6 bg-background">
+        <div className="w-full max-w-sm">
+          <div className="bg-surface border border-border rounded-2xl p-6 text-center space-y-4">
+            <p className="text-foreground text-sm">
+              Ce lien a expiré ou a déjà été utilisé.
+            </p>
+            <p className="text-muted text-xs">
+              Ça arrive souvent si plusieurs liens ont été demandés — seul le tout dernier email reçu fonctionne.
+            </p>
+            <p className="text-muted text-xs">
+              Retourne sur la page de connexion et redemande un nouveau lien via &quot;Mot de passe oublié ?&quot;.
+            </p>
+            <button
+              onClick={() => router.push('/login')}
+              className="w-full bg-accent-strong hover:bg-accent text-black font-semibold rounded-lg py-2.5 transition-colors"
+            >
+              Retour à la connexion
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -130,7 +156,7 @@ function ResetPasswordForm() {
 
           <button
             type="submit"
-            disabled={!ready || submitting}
+            disabled={submitting}
             className="w-full bg-accent-strong hover:bg-accent disabled:opacity-50 text-black font-semibold rounded-lg py-2.5 transition-colors"
           >
             {submitting ? 'Enregistrement...' : 'Changer le mot de passe'}
