@@ -19,18 +19,23 @@ function ResetPasswordForm() {
     async function establishSession() {
       const tokenHash = searchParams.get('token_hash');
       const type = searchParams.get('type');
+      const code = searchParams.get('code');
 
-      // Preferred path: our custom email link carries a token_hash that we
-      // exchange ourselves. This avoids the classic issue where email
-      // clients (Gmail included) "pre-click" links to scan them, which
-      // silently burns a one-time verification link before the person
-      // actually taps it.
       if (tokenHash && type === 'recovery') {
         const { error: verifyError } = await supabase.auth.verifyOtp({
           token_hash: tokenHash,
           type: 'recovery',
         });
         if (verifyError) {
+          setError('Le lien a expiré ou a déjà été utilisé. Redemande un lien depuis "Mot de passe oublié".');
+        }
+        setReady(true);
+        return;
+      }
+
+      if (code) {
+        const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+        if (exchangeError) {
           setError('Le lien a expiré ou a déjà été utilisé. Redemande un lien depuis "Mot de passe oublié".');
         }
         setReady(true);
