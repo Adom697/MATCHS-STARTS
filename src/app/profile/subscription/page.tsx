@@ -1,8 +1,14 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import { KkiapayButton } from '@/components/KkiapayButton';
 
-export default async function SubscriptionPage() {
+export default async function SubscriptionPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ activated?: string }>;
+}) {
+  const { activated } = await searchParams;
   const supabase = await createClient();
   const {
     data: { user },
@@ -25,6 +31,12 @@ export default async function SubscriptionPage() {
           {isPro ? 'Pro' : 'Gratuit'}
         </span>
       </p>
+
+      {activated && (
+        <div className="bg-accent-strong/15 border border-accent-strong/30 rounded-xl p-4 mb-6 text-center">
+          <p className="text-accent text-sm font-medium">Ton compte Pro est activé ! 🎉</p>
+        </div>
+      )}
 
       <div className="grid gap-4">
         <div className="bg-surface border border-border rounded-2xl p-5">
@@ -53,18 +65,13 @@ export default async function SubscriptionPage() {
           {isPro ? (
             <p className="text-center text-accent text-sm font-medium py-2.5">Tu es déjà abonné ✓</p>
           ) : (
-            <button
-              disabled
-              className="w-full bg-accent-strong/40 text-black/60 font-semibold rounded-lg py-2.5 cursor-not-allowed"
-            >
-              Paiement Mobile Money — bientôt disponible
-            </button>
+            <KkiapayButton email={user.email || ''} />
           )}
         </div>
       </div>
 
       <p className="text-muted text-xs mt-6 text-center">
-        Le paiement par Mobile Money arrive prochainement. En attendant, contacte-nous pour activer ton compte Pro.
+        Paiement sécurisé via Mobile Money (MTN, Moov) propulsé par Kkiapay.
       </p>
     </div>
   );

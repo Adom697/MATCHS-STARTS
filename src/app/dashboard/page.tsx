@@ -183,9 +183,16 @@ export default async function DashboardPage() {
 
       <Link
         href="/matches/new"
-        className="block w-full text-center bg-accent-strong hover:bg-accent text-black font-semibold rounded-xl py-3.5 mb-8 transition-colors"
+        className="block w-full text-center bg-accent-strong hover:bg-accent text-black font-semibold rounded-xl py-3.5 mb-3 transition-colors"
       >
         + Nouveau match
+      </Link>
+
+      <Link
+        href="/feedback"
+        className="block w-full text-center text-muted text-sm py-2 mb-8 hover:text-foreground transition-colors"
+      >
+        💬 Donner mon avis sur l&apos;app
       </Link>
 
       <section className="mb-8">
