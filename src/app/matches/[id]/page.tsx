@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 
-const OUTFIELD_ROWS: { key: string; label: string }[] = [
+const MIDFIELD_ATTACK_ROWS: { key: string; label: string }[] = [
   { key: 'touches', label: 'Touches de balle' },
   { key: 'passes_reussies', label: 'Passes réussies' },
   { key: 'passes_ratees', label: 'Passes ratées' },
@@ -14,6 +14,23 @@ const OUTFIELD_ROWS: { key: string; label: string }[] = [
   { key: 'buts', label: 'Buts' },
   { key: 'ballons_perdus', label: 'Ballons perdus' },
   { key: 'ballons_recuperes', label: 'Ballons récupérés' },
+  { key: 'fautes_commises', label: 'Fautes commises' },
+  { key: 'fautes_subies', label: 'Fautes subies' },
+  { key: 'cartons_jaunes', label: 'Cartons jaunes' },
+  { key: 'cartons_rouges', label: 'Cartons rouges' },
+];
+
+const DEFENDER_ROWS: { key: string; label: string }[] = [
+  { key: 'tacles_reussis', label: 'Tacles réussis' },
+  { key: 'tacles_rates', label: 'Tacles ratés' },
+  { key: 'interceptions', label: 'Interceptions' },
+  { key: 'duels_aeriens_gagnes', label: 'Duels aériens gagnés' },
+  { key: 'duels_aeriens_perdus', label: 'Duels aériens perdus' },
+  { key: 'degagements_reussis', label: 'Dégagements réussis' },
+  { key: 'degagements_rates', label: 'Dégagements ratés' },
+  { key: 'touches', label: 'Touches de balle' },
+  { key: 'passes_reussies', label: 'Passes réussies' },
+  { key: 'passes_ratees', label: 'Passes ratées' },
   { key: 'fautes_commises', label: 'Fautes commises' },
   { key: 'fautes_subies', label: 'Fautes subies' },
   { key: 'cartons_jaunes', label: 'Cartons jaunes' },
@@ -36,6 +53,12 @@ const GOALKEEPER_ROWS: { key: string; label: string }[] = [
   { key: 'cartons_rouges', label: 'Cartons rouges' },
 ];
 
+function rowsForPosition(position: string | null) {
+  if (position === 'Gardien') return GOALKEEPER_ROWS;
+  if (position === 'Défenseur') return DEFENDER_ROWS;
+  return MIDFIELD_ATTACK_ROWS;
+}
+
 export default async function MatchDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const supabase = await createClient();
@@ -49,9 +72,9 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ id
 
   if (!match) redirect('/dashboard');
 
-  const isGoalkeeper = match.players?.position === 'Gardien';
-  const STAT_ROWS = isGoalkeeper ? GOALKEEPER_ROWS : OUTFIELD_ROWS;
+  const STAT_ROWS = rowsForPosition(match.players?.position || null);
   const hasScore = match.team_score !== null && match.opponent_score !== null;
+  const hasRatings = match.player_rating !== null || match.coach_rating !== null;
 
   return (
     <div className="min-h-screen bg-background px-5 py-8 max-w-2xl mx-auto">
@@ -79,6 +102,23 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ id
           <p className="text-muted text-sm mt-1">{match.minutes_played} minutes jouées</p>
         )}
       </div>
+
+      {hasRatings && (
+        <div className="grid grid-cols-2 gap-3 mb-6">
+          {match.player_rating !== null && (
+            <div className="bg-surface border border-border rounded-xl p-3.5 text-center">
+              <p className="text-2xl font-bold text-accent">{match.player_rating}/10</p>
+              <p className="text-xs text-muted mt-0.5">Ma note</p>
+            </div>
+          )}
+          {match.coach_rating !== null && (
+            <div className="bg-surface border border-border rounded-xl p-3.5 text-center">
+              <p className="text-2xl font-bold text-accent">{match.coach_rating}/10</p>
+              <p className="text-xs text-muted mt-0.5">Note du coach</p>
+            </div>
+          )}
+        </div>
+      )}
 
       {stats ? (
         <div className="grid grid-cols-2 gap-3">

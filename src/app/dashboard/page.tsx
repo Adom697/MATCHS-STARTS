@@ -3,7 +3,7 @@ import { logOut } from '@/lib/actions/auth';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 
-const OUTFIELD_STAT_LABELS: Record<string, string> = {
+const MIDFIELD_ATTACK_LABELS: Record<string, string> = {
   touches: 'Touches de balle',
   passes_reussies: 'Passes réussies',
   passes_ratees: 'Passes ratées',
@@ -14,7 +14,18 @@ const OUTFIELD_STAT_LABELS: Record<string, string> = {
   buts: 'Buts',
 };
 
-const GOALKEEPER_STAT_LABELS: Record<string, string> = {
+const DEFENDER_LABELS: Record<string, string> = {
+  tacles_reussis: 'Tacles réussis',
+  tacles_rates: 'Tacles ratés',
+  interceptions: 'Interceptions',
+  duels_aeriens_gagnes: 'Duels aériens gagnés',
+  degagements_reussis: 'Dégagements réussis',
+  passes_reussies: 'Passes réussies',
+  passes_ratees: 'Passes ratées',
+  fautes_commises: 'Fautes commises',
+};
+
+const GOALKEEPER_LABELS: Record<string, string> = {
   arrets: 'Arrêts',
   buts_encaisses: 'Buts encaissés',
   penalties_arretes: 'Penaltys arrêtés',
@@ -24,6 +35,12 @@ const GOALKEEPER_STAT_LABELS: Record<string, string> = {
   passes_reussies: 'Passes réussies',
   passes_ratees: 'Passes ratées',
 };
+
+function labelsForPosition(position: string | null) {
+  if (position === 'Gardien') return GOALKEEPER_LABELS;
+  if (position === 'Défenseur') return DEFENDER_LABELS;
+  return MIDFIELD_ATTACK_LABELS;
+}
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -52,7 +69,7 @@ export default async function DashboardPage() {
   if (!player) redirect('/onboarding');
 
   const isGoalkeeper = player.position === 'Gardien';
-  const STAT_LABELS = isGoalkeeper ? GOALKEEPER_STAT_LABELS : OUTFIELD_STAT_LABELS;
+  const STAT_LABELS = labelsForPosition(player.position);
 
   const { data: matches } = await supabase
     .from('matches')
@@ -63,15 +80,39 @@ export default async function DashboardPage() {
   const seasonTotals: Record<string, number> = {};
   for (const key of Object.keys(STAT_LABELS)) seasonTotals[key] = 0;
 
+  let wins = 0,
+    draws = 0,
+    losses = 0,
+    cleanSheets = 0,
+    playedCount = 0;
+  let ratingSum = 0,
+    ratingCount = 0;
+
   for (const m of matches || []) {
     const stats = Array.isArray(m.match_stats) ? m.match_stats[0] : m.match_stats;
-    if (!stats) continue;
-    for (const key of Object.keys(STAT_LABELS)) {
-      seasonTotals[key] += stats[key] || 0;
+    if (stats) {
+      for (const key of Object.keys(STAT_LABELS)) {
+        seasonTotals[key] += stats[key] || 0;
+      }
+      if (isGoalkeeper && m.status === 'termine' && stats.buts_encaisses === 0) cleanSheets++;
+    }
+
+    if (m.status === 'termine') {
+      playedCount++;
+      if (m.team_score !== null && m.opponent_score !== null) {
+        if (m.team_score > m.opponent_score) wins++;
+        else if (m.team_score === m.opponent_score) draws++;
+        else losses++;
+      }
+      if (m.player_rating !== null) {
+        ratingSum += m.player_rating;
+        ratingCount++;
+      }
     }
   }
 
   const matchCount = matches?.length || 0;
+  const avgRating = ratingCount > 0 ? (ratingSum / ratingCount).toFixed(1) : null;
 
   return (
     <div className="min-h-screen bg-background px-5 py-8 max-w-2xl mx-auto">
@@ -108,12 +149,20 @@ export default async function DashboardPage() {
       </div>
 
       {!isAssistant && (
-        <Link
-          href="/profile/edit"
-          className="block w-full text-center border border-border text-foreground rounded-xl py-2.5 mb-3 text-sm hover:border-accent transition-colors"
-        >
-          Modifier mon profil
-        </Link>
+        <div className="grid grid-cols-2 gap-2 mb-3">
+          <Link
+            href="/profile/edit"
+            className="text-center border border-border text-foreground rounded-xl py-2.5 text-sm hover:border-accent transition-colors"
+          >
+            Modifier mon profil
+          </Link>
+          <Link
+            href="/profile/career"
+            className="text-center border border-border text-foreground rounded-xl py-2.5 text-sm hover:border-accent transition-colors"
+          >
+            Parcours & clubs
+          </Link>
+        </div>
       )}
 
       <Link
@@ -125,7 +174,41 @@ export default async function DashboardPage() {
 
       <section className="mb-8">
         <h2 className="text-sm font-semibold text-muted uppercase tracking-wide mb-3">
-          Saison en cours · {matchCount} match{matchCount > 1 ? 's' : ''}
+          Bilan de la saison · {playedCount} match{playedCount > 1 ? 's' : ''} joué{playedCount > 1 ? 's' : ''}
+        </h2>
+        <div className="grid grid-cols-3 gap-3 mb-3">
+          <div className="bg-surface border border-border rounded-xl p-3.5 text-center">
+            <p className="text-2xl font-bold text-accent">{wins}</p>
+            <p className="text-xs text-muted mt-0.5">Victoires</p>
+          </div>
+          <div className="bg-surface border border-border rounded-xl p-3.5 text-center">
+            <p className="text-2xl font-bold text-foreground">{draws}</p>
+            <p className="text-xs text-muted mt-0.5">Nuls</p>
+          </div>
+          <div className="bg-surface border border-border rounded-xl p-3.5 text-center">
+            <p className="text-2xl font-bold text-danger">{losses}</p>
+            <p className="text-xs text-muted mt-0.5">Défaites</p>
+          </div>
+        </div>
+        <div className={`grid gap-3 ${isGoalkeeper || avgRating ? 'grid-cols-2' : 'grid-cols-1'}`}>
+          {isGoalkeeper && (
+            <div className="bg-surface border border-border rounded-xl p-3.5 text-center">
+              <p className="text-2xl font-bold text-accent">{cleanSheets}</p>
+              <p className="text-xs text-muted mt-0.5">Clean sheets</p>
+            </div>
+          )}
+          {avgRating && (
+            <div className="bg-surface border border-border rounded-xl p-3.5 text-center">
+              <p className="text-2xl font-bold text-accent">{avgRating}/10</p>
+              <p className="text-xs text-muted mt-0.5">Note moyenne</p>
+            </div>
+          )}
+        </div>
+      </section>
+
+      <section className="mb-8">
+        <h2 className="text-sm font-semibold text-muted uppercase tracking-wide mb-3">
+          Statistiques · {matchCount} match{matchCount > 1 ? 's' : ''}
         </h2>
         <div className="grid grid-cols-2 gap-3">
           {Object.entries(STAT_LABELS).map(([key, label]) => (

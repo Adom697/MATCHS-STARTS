@@ -8,7 +8,7 @@ type ButtonGroup = {
   buttons: { type: string; label: string; tone?: 'positive' | 'negative' }[];
 };
 
-const OUTFIELD_GROUPS: ButtonGroup[] = [
+const MIDFIELD_ATTACK_GROUPS: ButtonGroup[] = [
   {
     title: 'Ballon',
     buttons: [{ type: 'touche', label: 'Touche de balle' }],
@@ -41,6 +41,40 @@ const OUTFIELD_GROUPS: ButtonGroup[] = [
     buttons: [
       { type: 'ballon_perdu', label: 'Ballon perdu', tone: 'negative' },
       { type: 'ballon_recupere', label: 'Ballon récupéré', tone: 'positive' },
+    ],
+  },
+  {
+    title: 'Discipline',
+    buttons: [
+      { type: 'faute_commise', label: 'Faute commise', tone: 'negative' },
+      { type: 'faute_subie', label: 'Faute subie', tone: 'positive' },
+      { type: 'carton_jaune', label: 'Carton jaune reçu', tone: 'negative' },
+      { type: 'carton_rouge', label: 'Carton rouge reçu', tone: 'negative' },
+    ],
+  },
+];
+
+const DEFENDER_GROUPS: ButtonGroup[] = [
+  {
+    title: 'Défense',
+    buttons: [
+      { type: 'tacle_reussi', label: 'Tacle réussi', tone: 'positive' },
+      { type: 'tacle_rate', label: 'Tacle raté', tone: 'negative' },
+      { type: 'interception', label: 'Interception', tone: 'positive' },
+      { type: 'duel_aerien_gagne', label: 'Duel aérien gagné', tone: 'positive' },
+      { type: 'duel_aerien_perdu', label: 'Duel aérien perdu', tone: 'negative' },
+      { type: 'degagement_reussi', label: 'Dégagement réussi', tone: 'positive' },
+      { type: 'degagement_rate', label: 'Dégagement raté', tone: 'negative' },
+    ],
+  },
+  {
+    title: 'Relance',
+    buttons: [
+      { type: 'touche', label: 'Touche de balle' },
+      { type: 'passe_reussie', label: 'Passe réussie', tone: 'positive' },
+      { type: 'passe_ratee', label: 'Passe ratée', tone: 'negative' },
+      { type: 'dribble_reussi', label: 'Dribble réussi', tone: 'positive' },
+      { type: 'ballon_perdu', label: 'Ballon perdu', tone: 'negative' },
     ],
   },
   {
@@ -88,6 +122,12 @@ const GOALKEEPER_GROUPS: ButtonGroup[] = [
   },
 ];
 
+function groupsForPosition(position: string | null) {
+  if (position === 'Gardien') return GOALKEEPER_GROUPS;
+  if (position === 'Défenseur') return DEFENDER_GROUPS;
+  return MIDFIELD_ATTACK_GROUPS;
+}
+
 export default async function LiveMatchPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const supabase = await createClient();
@@ -101,8 +141,10 @@ export default async function LiveMatchPage({ params }: { params: Promise<{ id: 
 
   if (!match || !stats) redirect('/dashboard');
 
-  const isGoalkeeper = match.players?.position === 'Gardien';
-  const groups = isGoalkeeper ? GOALKEEPER_GROUPS : OUTFIELD_GROUPS;
+  const position = match.players?.position || null;
+  const isGoalkeeper = position === 'Gardien';
+  const isDefender = position === 'Défenseur';
+  const groups = groupsForPosition(position);
 
   return (
     <div className="min-h-screen bg-background px-4 py-6 max-w-2xl mx-auto pb-32">
@@ -139,6 +181,21 @@ export default async function LiveMatchPage({ params }: { params: Promise<{ id: 
                 {stats.degagements_reussis}/{stats.degagements_reussis + stats.degagements_rates}
               </p>
               <p className="text-[10px] text-muted">Dégagements</p>
+            </div>
+          </>
+        ) : isDefender ? (
+          <>
+            <div className="bg-surface border border-border rounded-lg p-2.5 text-center">
+              <p className="text-lg font-bold text-accent">{stats.tacles_reussis}</p>
+              <p className="text-[10px] text-muted">Tacles réussis</p>
+            </div>
+            <div className="bg-surface border border-border rounded-lg p-2.5 text-center">
+              <p className="text-lg font-bold text-accent">{stats.interceptions}</p>
+              <p className="text-[10px] text-muted">Interceptions</p>
+            </div>
+            <div className="bg-surface border border-border rounded-lg p-2.5 text-center">
+              <p className="text-lg font-bold text-accent">{stats.duels_aeriens_gagnes}</p>
+              <p className="text-[10px] text-muted">Duels aériens</p>
             </div>
           </>
         ) : (
@@ -213,6 +270,26 @@ export default async function LiveMatchPage({ params }: { params: Promise<{ id: 
                 min={0}
                 max={120}
                 placeholder="Min. jouées"
+                className="bg-surface-2 border border-border rounded-lg px-2 py-2 text-foreground text-sm"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <input
+                name="player_rating"
+                type="number"
+                min={0}
+                max={10}
+                step={0.5}
+                placeholder="Ma note (/10)"
+                className="bg-surface-2 border border-border rounded-lg px-2 py-2 text-foreground text-sm"
+              />
+              <input
+                name="coach_rating"
+                type="number"
+                min={0}
+                max={10}
+                step={0.5}
+                placeholder="Note du coach (/10)"
                 className="bg-surface-2 border border-border rounded-lg px-2 py-2 text-foreground text-sm"
               />
             </div>

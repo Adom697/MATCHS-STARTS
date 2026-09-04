@@ -82,6 +82,8 @@ export async function finishMatch(formData: FormData) {
   const team_score = formData.get('team_score') as string;
   const opponent_score = formData.get('opponent_score') as string;
   const minutes_played = formData.get('minutes_played') as string;
+  const player_rating = formData.get('player_rating') as string;
+  const coach_rating = formData.get('coach_rating') as string;
 
   const supabase = await createClient();
 
@@ -92,6 +94,8 @@ export async function finishMatch(formData: FormData) {
       team_score: team_score ? parseInt(team_score, 10) : null,
       opponent_score: opponent_score ? parseInt(opponent_score, 10) : null,
       minutes_played: minutes_played ? parseInt(minutes_played, 10) : null,
+      player_rating: player_rating ? parseFloat(player_rating) : null,
+      coach_rating: coach_rating ? parseFloat(coach_rating) : null,
     })
     .eq('id', matchId);
 
