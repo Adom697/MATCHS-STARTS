@@ -23,26 +23,29 @@ export async function updatePlayerProfile(formData: FormData) {
   const achievements = formData.get('achievements') as string;
   const current_club = formData.get('current_club') as string;
   const position = formData.get('position') as string;
-  const is_public = formData.get('is_public') === 'on';
+  const player_category = formData.get('player_category') as string;
+  const wantsPublic = formData.get('is_public') === 'on';
   const photo = formData.get('photo') as File | null;
+
+  const { data: currentPlayer } = await supabase
+    .from('players')
+    .select('first_name, last_name, public_slug, plan')
+    .eq('id', user.id)
+    .single();
+
+  // La vitrine publique est une fonctionnalité réservée à l'abonnement Pro.
+  const is_public = wantsPublic && currentPlayer?.plan === 'pro';
 
   const updates: Record<string, unknown> = {
     achievements: achievements || null,
     current_club: current_club || null,
     position: position || null,
+    player_category: player_category || 'Amateur',
     is_public,
   };
 
-  if (is_public) {
-    const { data: player } = await supabase
-      .from('players')
-      .select('first_name, last_name, public_slug')
-      .eq('id', user.id)
-      .single();
-
-    if (player && !player.public_slug) {
-      updates.public_slug = `${slugify(`${player.first_name}-${player.last_name}`)}-${user.id.slice(0, 6)}`;
-    }
+  if (is_public && currentPlayer && !currentPlayer.public_slug) {
+    updates.public_slug = `${slugify(`${currentPlayer.first_name}-${currentPlayer.last_name}`)}-${user.id.slice(0, 6)}`;
   }
 
   if (photo && photo.size > 0) {

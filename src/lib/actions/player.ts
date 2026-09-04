@@ -18,6 +18,7 @@ export async function createPlayerProfile(formData: FormData) {
   const position = formData.get('position') as string;
   const jersey_number = formData.get('jersey_number') as string;
   const strong_foot = formData.get('strong_foot') as string;
+  const player_category = formData.get('player_category') as string;
   const birth_date = formData.get('birth_date') as string;
 
   const { error } = await supabase.from('players').insert({
@@ -28,6 +29,7 @@ export async function createPlayerProfile(formData: FormData) {
     position: position || null,
     jersey_number: jersey_number ? parseInt(jersey_number, 10) : null,
     strong_foot: strong_foot || null,
+    player_category: player_category || 'Amateur',
     birth_date: birth_date || null,
   });
 

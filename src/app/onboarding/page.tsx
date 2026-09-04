@@ -91,6 +91,20 @@ export default async function OnboardingPage({
             </select>
           </div>
 
+          <div>
+            <label className="block text-sm text-muted mb-1.5">Catégorie</label>
+            <select
+              name="player_category"
+              defaultValue="Amateur"
+              className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-foreground focus:outline-none focus:border-accent"
+            >
+              <option value="Plaisir">Plaisir</option>
+              <option value="Amateur">Amateur</option>
+              <option value="Académicien">Académicien</option>
+              <option value="Pro">Pro</option>
+            </select>
+          </div>
+
           {error && <p className="text-danger text-sm">{error}</p>}
 
           <button

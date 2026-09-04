@@ -165,6 +165,22 @@ export default async function DashboardPage() {
         </div>
       )}
 
+      {!isAssistant && (
+        <Link
+          href="/profile/subscription"
+          className="flex items-center justify-center gap-2 w-full text-center border border-border text-foreground rounded-xl py-2.5 mb-3 text-sm hover:border-accent transition-colors"
+        >
+          Abonnement
+          <span
+            className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+              player.plan === 'pro' ? 'text-accent bg-accent-strong/15' : 'text-muted bg-surface-2'
+            }`}
+          >
+            {player.plan === 'pro' ? 'PRO' : 'GRATUIT'}
+          </span>
+        </Link>
+      )}
+
       <Link
         href="/matches/new"
         className="block w-full text-center bg-accent-strong hover:bg-accent text-black font-semibold rounded-xl py-3.5 mb-8 transition-colors"

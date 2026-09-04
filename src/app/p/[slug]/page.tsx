@@ -47,6 +47,7 @@ export default async function PublicPlayerPage({ params }: { params: Promise<{ s
     .select('*')
     .eq('public_slug', slug)
     .eq('is_public', true)
+    .eq('plan', 'pro')
     .maybeSingle();
 
   if (!player) notFound();

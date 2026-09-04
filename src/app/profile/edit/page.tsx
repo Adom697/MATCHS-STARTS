@@ -81,6 +81,20 @@ export default async function EditProfilePage({
         </div>
 
         <div>
+          <label className="block text-sm text-muted mb-1.5">Catégorie</label>
+          <select
+            name="player_category"
+            defaultValue={player.player_category || 'Amateur'}
+            className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-foreground focus:outline-none focus:border-accent"
+          >
+            <option value="Plaisir">Plaisir</option>
+            <option value="Amateur">Amateur</option>
+            <option value="Académicien">Académicien</option>
+            <option value="Pro">Pro</option>
+          </select>
+        </div>
+
+        <div>
           <label className="block text-sm text-muted mb-1.5">Palmarès</label>
           <textarea
             name="achievements"
@@ -91,20 +105,37 @@ export default async function EditProfilePage({
           />
         </div>
 
-        <label className="flex items-center gap-3 bg-surface-2 border border-border rounded-lg px-3 py-3">
-          <input
-            name="is_public"
-            type="checkbox"
-            defaultChecked={player.is_public}
-            className="w-5 h-5 accent-accent-strong"
-          />
-          <div>
-            <p className="text-sm text-foreground font-medium">Page vitrine publique</p>
-            <p className="text-xs text-muted">
-              Active un lien que tu peux envoyer à des recruteurs, sans qu&apos;ils aient besoin de compte.
+        {player.plan === 'pro' ? (
+          <label className="flex items-center gap-3 bg-surface-2 border border-border rounded-lg px-3 py-3">
+            <input
+              name="is_public"
+              type="checkbox"
+              defaultChecked={player.is_public}
+              className="w-5 h-5 accent-accent-strong"
+            />
+            <div>
+              <p className="text-sm text-foreground font-medium">Page vitrine publique</p>
+              <p className="text-xs text-muted">
+                Active un lien que tu peux envoyer à des recruteurs, sans qu&apos;ils aient besoin de compte.
+              </p>
+            </div>
+          </label>
+        ) : (
+          <div className="bg-surface-2 border border-accent-strong/30 rounded-lg px-3 py-3">
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-foreground font-medium">Page vitrine publique</p>
+              <span className="text-[10px] font-semibold text-accent bg-accent-strong/15 px-2 py-0.5 rounded-full">
+                PRO
+              </span>
+            </div>
+            <p className="text-xs text-muted mt-1">
+              Réservée à l&apos;abonnement Pro — active-la pour te faire repérer par des recruteurs.
             </p>
+            <Link href="/profile/subscription" className="text-accent text-xs font-medium mt-2 inline-block">
+              Découvrir l&apos;abonnement Pro →
+            </Link>
           </div>
-        </label>
+        )}
 
         {player.public_slug && (
           <p className="text-xs text-muted">
