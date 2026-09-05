@@ -18,6 +18,12 @@ export async function signUpPlayer(formData: FormData) {
     redirect(`/signup?role=joueur&error=${encodeURIComponent('Inscription impossible, réessaie.')}`);
   }
 
+  if (!data.session) {
+    // La confirmation d'email est activée côté Supabase : le compte est créé
+    // mais pas encore utilisable tant que le lien reçu par email n'est pas cliqué.
+    redirect('/login?info=confirm_email');
+  }
+
   redirect('/onboarding');
 }
 
@@ -52,6 +58,10 @@ export async function signUpAssistant(formData: FormData) {
     redirect(`/signup?role=assistant&error=${encodeURIComponent(insertError.message)}`);
   }
 
+  if (!data.session) {
+    redirect('/login?info=confirm_email');
+  }
+
   redirect('/dashboard');
 }
 
@@ -63,7 +73,10 @@ export async function logIn(formData: FormData) {
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
-    redirect(`/login?error=${encodeURIComponent('Email ou mot de passe incorrect.')}`);
+    const message = error.message.toLowerCase().includes('confirm')
+      ? "Ton email n'est pas encore confirmé. Vérifie ta boîte mail (et les spams) pour le lien de confirmation."
+      : 'Email ou mot de passe incorrect.';
+    redirect(`/login?error=${encodeURIComponent(message)}`);
   }
 
   redirect('/dashboard');

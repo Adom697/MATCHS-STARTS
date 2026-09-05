@@ -5,9 +5,9 @@ import Link from 'next/link';
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; info?: string }>;
 }) {
-  const { error } = await searchParams;
+  const { error, info } = await searchParams;
 
   return (
     <div className="min-h-screen flex items-center justify-center px-6 bg-background">
@@ -16,6 +16,15 @@ export default async function LoginPage({
           <h1 className="text-2xl font-bold text-foreground">MatchStat</h1>
           <p className="text-muted mt-1 text-sm">Suis tes performances, match après match.</p>
         </div>
+
+        {info === 'confirm_email' && (
+          <div className="bg-accent-strong/15 border border-accent-strong/30 rounded-xl p-4 mb-4 text-center">
+            <p className="text-accent text-sm font-medium">Compte créé !</p>
+            <p className="text-muted text-xs mt-1">
+              Vérifie ta boîte mail (et les spams) pour confirmer ton adresse avant de te connecter.
+            </p>
+          </div>
+        )}
 
         <form action={logIn} className="bg-surface border border-border rounded-2xl p-6 space-y-4">
           <div>
