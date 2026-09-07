@@ -138,9 +138,17 @@ export default async function EditProfilePage({
         )}
 
         {player.public_slug && (
-          <p className="text-xs text-muted">
-            Lien : <span className="text-accent">matchs-starts.vercel.app/p/{player.public_slug}</span>
-          </p>
+          <div className="bg-surface-2 border border-border rounded-lg px-3 py-3">
+            <p className="text-xs text-muted mb-1.5">Ton lien vitrine :</p>
+            <a
+              href={`https://matchs-starts.vercel.app/p/${player.public_slug}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-accent text-sm font-medium underline break-all"
+            >
+              matchs-starts.vercel.app/p/{player.public_slug}
+            </a>
+          </div>
         )}
 
         {error && <p className="text-danger text-sm">{error}</p>}

@@ -181,6 +181,17 @@ export default async function DashboardPage() {
         </Link>
       )}
 
+      {!isAssistant && player.is_public && player.public_slug && (
+        <a
+          href={`https://matchs-starts.vercel.app/p/${player.public_slug}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block w-full text-center text-accent text-sm py-2 mb-3 underline"
+        >
+          Voir ma page vitrine →
+        </a>
+      )}
+
       <Link
         href="/matches/new"
         className="block w-full text-center bg-accent-strong hover:bg-accent text-black font-semibold rounded-xl py-3.5 mb-3 transition-colors"
