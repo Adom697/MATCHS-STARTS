@@ -116,7 +116,14 @@ export default async function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-background px-5 py-8 max-w-2xl mx-auto">
-      <div className="flex justify-end mb-2">
+      <div className="flex justify-between items-center mb-2">
+        {user.email === 'cedriccassy312@gmail.com' ? (
+          <Link href="/admin" className="text-muted text-sm hover:text-foreground">
+            📊 Admin
+          </Link>
+        ) : (
+          <span />
+        )}
         <form action={logOut}>
           <button type="submit" className="text-muted text-sm hover:text-foreground">
             Déconnexion
