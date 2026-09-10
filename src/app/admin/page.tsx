@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import { SignupsChart, BreakdownDonut } from '@/components/AdminCharts';
 
 const ADMIN_EMAIL = 'cedriccassy312@gmail.com';
 
@@ -28,35 +29,25 @@ type FeedbackRow = {
   email: string;
 };
 
-function StatCard({ value, label, accent }: { value: string | number; label: string; accent?: boolean }) {
+function KpiCard({
+  icon,
+  value,
+  label,
+  sub,
+}: {
+  icon: string;
+  value: string | number;
+  label: string;
+  sub?: string;
+}) {
   return (
-    <div className="bg-surface border border-border rounded-xl p-4">
-      <p className={`text-3xl font-bold ${accent ? 'text-accent' : 'text-foreground'}`}>{value}</p>
-      <p className="text-xs text-muted mt-1">{label}</p>
-    </div>
-  );
-}
-
-function BreakdownBar({ data }: { data: Record<string, number> }) {
-  const entries = Object.entries(data || {});
-  const max = Math.max(1, ...entries.map(([, v]) => v));
-  return (
-    <div className="space-y-2.5">
-      {entries.map(([key, val]) => (
-        <div key={key}>
-          <div className="flex justify-between text-xs mb-1">
-            <span className="text-foreground">{key}</span>
-            <span className="text-muted">{val}</span>
-          </div>
-          <div className="h-2 bg-surface-2 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-accent-strong rounded-full"
-              style={{ width: `${(val / max) * 100}%` }}
-            />
-          </div>
-        </div>
-      ))}
-      {entries.length === 0 && <p className="text-muted text-sm">Aucune donnée pour l&apos;instant.</p>}
+    <div className="bg-surface border border-border rounded-2xl p-5">
+      <div className="flex items-center justify-between mb-3">
+        <span className="text-2xl">{icon}</span>
+      </div>
+      <p className="text-3xl font-bold text-foreground">{value}</p>
+      <p className="text-sm text-muted mt-1">{label}</p>
+      {sub && <p className="text-xs text-accent mt-1.5">{sub}</p>}
     </div>
   );
 }
@@ -85,102 +76,109 @@ export default async function AdminPage() {
     );
   }
 
-  const maxSignup = Math.max(1, ...s.signups_last_7_days.map((d) => d.count));
   const estimatedRevenue = s.pro_players * 3000;
+  const conversionRate = s.total_players > 0 ? ((s.pro_players / s.total_players) * 100).toFixed(1) : '0';
 
   return (
-    <div className="min-h-screen bg-background px-5 py-8 max-w-3xl mx-auto">
-      <Link href="/dashboard" className="text-muted text-sm mb-4 inline-block">
-        ← Tableau de bord
-      </Link>
-      <h1 className="text-2xl font-bold text-foreground mb-1">Tableau de bord admin</h1>
-      <p className="text-muted text-sm mb-8">Vue d&apos;ensemble de MatchStat, réservée à toi.</p>
-
-      <section className="mb-8">
-        <h2 className="text-sm font-semibold text-muted uppercase tracking-wide mb-3">Joueurs</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <StatCard value={s.total_players} label="Joueurs inscrits" accent />
-          <StatCard value={s.pro_players} label="Abonnés Pro" accent />
-          <StatCard value={s.free_players} label="Comptes gratuits" />
-          <StatCard value={s.total_assistants} label="Assistants" />
+    <div className="min-h-screen bg-background px-5 py-8 max-w-5xl mx-auto">
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <Link href="/dashboard" className="text-muted text-sm">
+            ← Tableau de bord
+          </Link>
+          <h1 className="text-2xl font-bold text-foreground mt-1">Vue d&apos;ensemble MatchStat</h1>
         </div>
-      </section>
-
-      <section className="mb-8">
-        <h2 className="text-sm font-semibold text-muted uppercase tracking-wide mb-3">Revenu estimé</h2>
-        <div className="bg-surface border border-accent-strong/30 rounded-xl p-5">
-          <p className="text-3xl font-bold text-accent">{estimatedRevenue.toLocaleString('fr-FR')} FCFA</p>
-          <p className="text-xs text-muted mt-1">
-            {s.pro_players} abonné{s.pro_players > 1 ? 's' : ''} Pro × 3 000 FCFA/mois
-          </p>
-        </div>
-      </section>
-
-      <section className="mb-8">
-        <h2 className="text-sm font-semibold text-muted uppercase tracking-wide mb-3">
-          Inscriptions — 7 derniers jours
-        </h2>
-        <div className="bg-surface border border-border rounded-xl p-4 flex items-end justify-between gap-2 h-40">
-          {s.signups_last_7_days.map((d) => (
-            <div key={d.date} className="flex-1 flex flex-col items-center justify-end h-full">
-              <div
-                className="w-full bg-accent-strong rounded-t-md"
-                style={{ height: `${Math.max(4, (d.count / maxSignup) * 100)}%` }}
-              />
-              <p className="text-[10px] text-muted mt-1.5">{d.date}</p>
-              <p className="text-xs text-foreground font-medium">{d.count}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="mb-8">
-        <h2 className="text-sm font-semibold text-muted uppercase tracking-wide mb-3">Matchs</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <StatCard value={s.total_matches} label="Matchs totaux" accent />
-          <StatCard value={s.matches_completed} label="Terminés" />
-          <StatCard value={s.matches_live} label="En direct" />
-          <StatCard value={s.matches_upcoming} label="À venir" />
-        </div>
-      </section>
-
-      <div className="grid sm:grid-cols-2 gap-6 mb-8">
-        <section>
-          <h2 className="text-sm font-semibold text-muted uppercase tracking-wide mb-3">Par catégorie</h2>
-          <div className="bg-surface border border-border rounded-xl p-4">
-            <BreakdownBar data={s.by_category} />
-          </div>
-        </section>
-        <section>
-          <h2 className="text-sm font-semibold text-muted uppercase tracking-wide mb-3">Par poste</h2>
-          <div className="bg-surface border border-border rounded-xl p-4">
-            <BreakdownBar data={s.by_position} />
-          </div>
-        </section>
+        <span className="text-xs text-muted bg-surface-2 border border-border px-3 py-1.5 rounded-full">
+          Admin
+        </span>
       </div>
 
-      <section className="mb-8">
-        <h2 className="text-sm font-semibold text-muted uppercase tracking-wide mb-3">Feedback</h2>
-        <div className="grid grid-cols-2 gap-3 mb-4">
-          <StatCard value={s.avg_feedback_rating ?? '—'} label="Note moyenne" accent />
-          <StatCard value={s.feedback_count} label="Avis reçus" />
+      {/* KPI ROW */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+        <KpiCard icon="👥" value={s.total_players} label="Utilisateurs" />
+        <KpiCard
+          icon="⭐"
+          value={s.pro_players}
+          label="Abonnements Pro"
+          sub={`${conversionRate}% de conversion`}
+        />
+        <KpiCard
+          icon="💰"
+          value={`${estimatedRevenue.toLocaleString('fr-FR')} F`}
+          label="Revenu estimé / mois"
+        />
+        <KpiCard icon="⚽" value={s.total_matches} label="Matchs enregistrés" />
+      </div>
+
+      {/* MAIN CHART */}
+      <div className="bg-surface border border-border rounded-2xl p-5 mb-6">
+        <h2 className="text-sm font-semibold text-foreground mb-1">Inscriptions — 7 derniers jours</h2>
+        <p className="text-xs text-muted mb-3">Nouveaux joueurs créant un compte, par jour</p>
+        <SignupsChart data={s.signups_last_7_days} />
+      </div>
+
+      {/* SECONDARY CHARTS */}
+      <div className="grid sm:grid-cols-2 gap-4 mb-6">
+        <div className="bg-surface border border-border rounded-2xl p-5">
+          <h2 className="text-sm font-semibold text-foreground mb-3">Répartition par catégorie</h2>
+          <BreakdownDonut data={s.by_category} />
+        </div>
+        <div className="bg-surface border border-border rounded-2xl p-5">
+          <h2 className="text-sm font-semibold text-foreground mb-3">Répartition par poste</h2>
+          <BreakdownDonut data={s.by_position} />
+        </div>
+      </div>
+
+      {/* MATCH STATUS ROW */}
+      <div className="grid grid-cols-3 gap-4 mb-6">
+        <div className="bg-surface border border-border rounded-2xl p-4 text-center">
+          <p className="text-2xl font-bold text-accent">{s.matches_completed}</p>
+          <p className="text-xs text-muted mt-1">Terminés</p>
+        </div>
+        <div className="bg-surface border border-border rounded-2xl p-4 text-center">
+          <p className="text-2xl font-bold text-danger">{s.matches_live}</p>
+          <p className="text-xs text-muted mt-1">En direct</p>
+        </div>
+        <div className="bg-surface border border-border rounded-2xl p-4 text-center">
+          <p className="text-2xl font-bold text-foreground">{s.matches_upcoming}</p>
+          <p className="text-xs text-muted mt-1">À venir</p>
+        </div>
+      </div>
+
+      {/* FEEDBACK TABLE */}
+      <div className="bg-surface border border-border rounded-2xl p-5">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-sm font-semibold text-foreground">Derniers avis testeurs</h2>
+          <div className="flex items-center gap-3 text-xs text-muted">
+            <span>
+              Note moyenne : <span className="text-accent font-semibold">{s.avg_feedback_rating ?? '—'}/5</span>
+            </span>
+            <span>{s.feedback_count} avis</span>
+          </div>
         </div>
         <div className="space-y-2">
-          {feedbackRows.length === 0 && <p className="text-muted text-sm">Aucun avis pour l&apos;instant.</p>}
+          {feedbackRows.length === 0 && (
+            <p className="text-muted text-sm py-4 text-center">Aucun avis pour l&apos;instant.</p>
+          )}
           {feedbackRows.map((f, i) => (
-            <div key={i} className="bg-surface border border-border rounded-xl p-4">
-              <div className="flex items-center justify-between mb-1.5">
-                <p className="text-foreground text-sm font-medium">{f.email}</p>
-                {f.rating && <p className="text-accent text-sm font-bold">{f.rating}/5</p>}
+            <div
+              key={i}
+              className="flex items-start justify-between gap-3 border-b border-border last:border-0 py-3"
+            >
+              <div className="min-w-0 flex-1">
+                <p className="text-foreground text-sm font-medium truncate">{f.email}</p>
+                <p className="text-muted text-sm mt-0.5">{f.message}</p>
               </div>
-              <p className="text-muted text-sm">{f.message}</p>
-              <p className="text-muted text-xs mt-1.5">
-                {new Date(f.created_at).toLocaleDateString('fr-FR')}
-              </p>
+              <div className="text-right shrink-0">
+                {f.rating && <p className="text-accent text-sm font-bold">{f.rating}/5</p>}
+                <p className="text-muted text-xs mt-0.5">
+                  {new Date(f.created_at).toLocaleDateString('fr-FR')}
+                </p>
+              </div>
             </div>
           ))}
         </div>
-      </section>
+      </div>
     </div>
   );
 }
