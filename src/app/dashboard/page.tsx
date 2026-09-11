@@ -172,6 +172,16 @@ export default async function DashboardPage() {
         </div>
       )}
 
+      <Link
+        href="/analysis"
+        className="flex items-center justify-center gap-2 w-full text-center border border-border text-foreground rounded-xl py-2.5 mb-3 text-sm hover:border-accent transition-colors"
+      >
+        Analyse & Progression
+        <span className="text-[10px] font-semibold text-accent bg-accent-strong/15 px-2 py-0.5 rounded-full">
+          PRO
+        </span>
+      </Link>
+
       {!isAssistant && (
         <Link
           href="/profile/subscription"
