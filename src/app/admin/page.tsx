@@ -64,11 +64,12 @@ export default async function AdminPage() {
 
   if (!user || user.email !== ADMIN_EMAIL) redirect('/dashboard');
 
-  const [{ data: stats, error: statsError }, { data: feedback }, { data: users }] = await Promise.all([
-    supabase.rpc('get_admin_stats'),
-    supabase.rpc('get_admin_feedback'),
-    supabase.rpc('get_admin_users'),
-  ]);
+  const [{ data: stats, error: statsError }, { data: feedback }, { data: users, error: usersError }] =
+    await Promise.all([
+      supabase.rpc('get_admin_stats'),
+      supabase.rpc('get_admin_feedback'),
+      supabase.rpc('get_admin_users'),
+    ]);
 
   const s = stats as AdminStats | null;
   const feedbackRows = (feedback || []) as FeedbackRow[];
@@ -169,6 +170,9 @@ export default async function AdminPage() {
         {/* USERS TABLE */}
         <div className="bg-surface border border-border rounded-2xl p-5 mb-6 overflow-x-auto">
           <h2 className="text-sm font-semibold text-foreground mb-4">Utilisateurs ({userRows.length})</h2>
+          {usersError && (
+            <p className="text-danger text-xs mb-3">Erreur : {usersError.message}</p>
+          )}
           <table className="w-full text-sm min-w-[700px]">
             <thead>
               <tr className="text-left text-muted border-b border-border">
