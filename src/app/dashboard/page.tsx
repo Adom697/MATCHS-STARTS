@@ -296,6 +296,25 @@ export default async function DashboardPage() {
         </div>
       </section>
 
+      {!isAssistant && player.plan !== 'pro' && matchCount >= 2 && (
+        <section className="mb-8">
+          <div className="bg-gradient-to-br from-accent-strong/15 to-surface border border-accent-strong/30 rounded-2xl p-5">
+            <p className="text-foreground font-semibold mb-1">
+              {matchCount} matchs enregistrés — de quoi impressionner un recruteur 👀
+            </p>
+            <p className="text-muted text-sm mb-3">
+              Passe en Pro pour transformer tes stats en page vitrine, CV PDF et QR code partageable.
+            </p>
+            <Link
+              href="/profile/subscription"
+              className="inline-block bg-accent-strong hover:bg-accent text-black font-semibold rounded-lg px-4 py-2 text-sm transition-colors"
+            >
+              Découvrir le Pro
+            </Link>
+          </div>
+        </section>
+      )}
+
       {!isAssistant && (
         <section>
           <h2 className="text-sm font-semibold text-muted uppercase tracking-wide mb-3">Assistants</h2>
