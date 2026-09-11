@@ -167,57 +167,42 @@ export default async function AdminPage() {
           </div>
         </div>
 
-        {/* USERS TABLE */}
-        <div className="bg-surface border border-border rounded-2xl p-5 mb-6 overflow-x-auto">
+        {/* USERS LIST */}
+        <div className="bg-surface border border-border rounded-2xl p-5 mb-6">
           <h2 className="text-sm font-semibold text-foreground mb-4">Utilisateurs ({userRows.length})</h2>
           {usersError && (
             <p className="text-danger text-xs mb-3">Erreur : {usersError.message}</p>
           )}
-          <table className="w-full text-sm min-w-[700px]">
-            <thead>
-              <tr className="text-left text-muted border-b border-border">
-                <th className="pb-2 pr-3 font-medium">Nom</th>
-                <th className="pb-2 pr-3 font-medium">Email</th>
-                <th className="pb-2 pr-3 font-medium">Club</th>
-                <th className="pb-2 pr-3 font-medium">Poste</th>
-                <th className="pb-2 pr-3 font-medium">Catégorie</th>
-                <th className="pb-2 pr-3 font-medium">Plan</th>
-                <th className="pb-2 font-medium">Inscrit le</th>
-              </tr>
-            </thead>
-            <tbody>
-              {userRows.map((u) => (
-                <tr key={u.id} className="border-b border-border last:border-0">
-                  <td className="py-2.5 pr-3 text-foreground font-medium whitespace-nowrap">
+          <div className="space-y-2">
+            {userRows.map((u) => (
+              <div key={u.id} className="bg-surface-2 border border-border rounded-xl p-4">
+                <div className="flex items-start justify-between gap-2 mb-2">
+                  <p className="text-foreground font-semibold">
                     {u.first_name} {u.last_name}
-                  </td>
-                  <td className="py-2.5 pr-3 text-muted">{u.email}</td>
-                  <td className="py-2.5 pr-3 text-muted whitespace-nowrap">{u.current_club || '—'}</td>
-                  <td className="py-2.5 pr-3 text-muted whitespace-nowrap">{u.position || '—'}</td>
-                  <td className="py-2.5 pr-3 text-muted whitespace-nowrap">{u.player_category || '—'}</td>
-                  <td className="py-2.5 pr-3">
-                    <span
-                      className={`text-xs px-2 py-0.5 rounded-full ${
-                        u.plan === 'pro' ? 'bg-accent-strong/15 text-accent' : 'bg-surface-2 text-muted'
-                      }`}
-                    >
-                      {u.plan === 'pro' ? 'PRO' : 'Gratuit'}
-                    </span>
-                  </td>
-                  <td className="py-2.5 text-muted whitespace-nowrap">
-                    {new Date(u.created_at).toLocaleDateString('fr-FR')}
-                  </td>
-                </tr>
-              ))}
-              {userRows.length === 0 && (
-                <tr>
-                  <td colSpan={7} className="py-6 text-center text-muted">
-                    Aucun utilisateur pour l&apos;instant.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                  </p>
+                  <span
+                    className={`text-xs px-2 py-0.5 rounded-full shrink-0 ${
+                      u.plan === 'pro' ? 'bg-accent-strong/15 text-accent' : 'bg-surface text-muted'
+                    }`}
+                  >
+                    {u.plan === 'pro' ? 'PRO' : 'Gratuit'}
+                  </span>
+                </div>
+                <p className="text-muted text-sm break-all">{u.email}</p>
+                <div className="flex flex-wrap gap-x-3 gap-y-1 mt-2 text-xs text-muted">
+                  <span>{u.current_club || 'Club non renseigné'}</span>
+                  <span>· {u.position || 'Poste non renseigné'}</span>
+                  <span>· {u.player_category || 'Catégorie non renseignée'}</span>
+                </div>
+                <p className="text-muted text-xs mt-2">
+                  Inscrit le {new Date(u.created_at).toLocaleDateString('fr-FR')}
+                </p>
+              </div>
+            ))}
+            {userRows.length === 0 && !usersError && (
+              <p className="text-muted text-sm py-6 text-center">Aucun utilisateur pour l&apos;instant.</p>
+            )}
+          </div>
         </div>
 
         {/* FEEDBACK */}

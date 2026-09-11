@@ -5,7 +5,7 @@ returns table(
   last_name text,
   email text,
   current_club text,
-  position text,
+  "position" text,
   player_category text,
   plan text,
   created_at timestamptz
@@ -20,7 +20,7 @@ begin
   end if;
 
   return query
-    select p.id, p.first_name, p.last_name, u.email, p.current_club, p.position,
+    select p.id, p.first_name, p.last_name, u.email, p.current_club, p."position",
            p.player_category, p.plan, p.created_at
     from players p
     join auth.users u on u.id = p.id
