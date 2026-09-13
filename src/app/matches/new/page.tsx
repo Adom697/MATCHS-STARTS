@@ -10,7 +10,7 @@ export default async function NewMatchPage({
   const today = new Date().toISOString().split('T')[0];
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-6 py-10 bg-background">
+    <div className="min-h-screen flex items-center justify-center px-6 py-10">
       <div className="w-full max-w-md">
         <Link href="/dashboard" className="text-muted text-sm mb-4 inline-block">
           ← Retour

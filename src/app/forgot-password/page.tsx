@@ -9,7 +9,7 @@ export default async function ForgotPasswordPage({
   const { sent } = await searchParams;
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-6 bg-background">
+    <div className="min-h-screen flex items-center justify-center px-6">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
           <h1 className="text-2xl font-bold text-foreground">Mot de passe oublié</h1>

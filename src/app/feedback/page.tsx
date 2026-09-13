@@ -9,7 +9,7 @@ export default async function FeedbackPage({
   const { sent } = await searchParams;
 
   return (
-    <div className="min-h-screen bg-background px-5 py-8 max-w-md mx-auto">
+    <div className="min-h-screen px-5 py-8 max-w-md mx-auto">
       <Link href="/dashboard" className="text-muted text-sm mb-4 inline-block">
         ← Tableau de bord
       </Link>

@@ -92,7 +92,7 @@ export default async function PublicPlayerPage({ params }: { params: Promise<{ s
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(pageUrl)}`;
 
   return (
-    <div className="min-h-screen bg-background px-5 py-10 max-w-2xl mx-auto print:bg-white print:text-black">
+    <div className="min-h-screen px-5 py-10 max-w-2xl mx-auto print:bg-white print:text-black">
       <div className="flex justify-end mb-4">
         <PrintButton />
       </div>

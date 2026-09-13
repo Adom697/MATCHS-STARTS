@@ -8,7 +8,7 @@ export default async function OnboardingPage({
   const { error } = await searchParams;
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-6 py-10 bg-background">
+    <div className="min-h-screen flex items-center justify-center px-6 py-10">
       <div className="w-full max-w-md">
         <div className="mb-6 text-center">
           <h1 className="text-2xl font-bold text-foreground">Ton profil joueur</h1>

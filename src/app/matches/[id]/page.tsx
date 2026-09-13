@@ -77,7 +77,7 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ id
   const hasRatings = match.player_rating !== null || match.coach_rating !== null;
 
   return (
-    <div className="min-h-screen bg-background px-5 py-8 max-w-2xl mx-auto">
+    <div className="min-h-screen px-5 py-8 max-w-2xl mx-auto">
       <Link href="/dashboard" className="text-muted text-sm mb-4 inline-block">
         ← Tableau de bord
       </Link>

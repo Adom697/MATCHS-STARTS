@@ -78,7 +78,7 @@ export default async function AdminPage() {
 
   if (statsError || !s) {
     return (
-      <div className="min-h-screen bg-background px-5 py-8 max-w-2xl mx-auto">
+      <div className="min-h-screen px-5 py-8 max-w-2xl mx-auto">
         <p className="text-danger text-sm">
           Impossible de charger les statistiques admin. {statsError?.message}
         </p>
@@ -90,7 +90,7 @@ export default async function AdminPage() {
   const conversionRate = s.total_players > 0 ? ((s.pro_players / s.total_players) * 100).toFixed(1) : '0';
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       {/* TOP BAR */}
       <div className="border-b border-border px-5 py-4 flex items-center justify-between sticky top-0 bg-background z-10">
         <div>

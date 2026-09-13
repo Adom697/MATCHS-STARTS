@@ -27,7 +27,7 @@ export default async function AnalysisPage() {
 
   if (player.plan !== 'pro') {
     return (
-      <div className="min-h-screen flex items-center justify-center px-6 bg-background">
+      <div className="min-h-screen flex items-center justify-center px-6">
         <div className="w-full max-w-sm text-center">
           <div className="bg-surface border border-accent-strong/30 rounded-2xl p-6">
             <span className="text-xs font-semibold text-accent bg-accent-strong/15 px-2 py-0.5 rounded-full">
@@ -80,7 +80,7 @@ export default async function AnalysisPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background px-5 py-8 max-w-2xl mx-auto">
+    <div className="min-h-screen px-5 py-8 max-w-2xl mx-auto">
       <Link href="/dashboard" className="text-muted text-sm mb-4 inline-block">
         ← Tableau de bord
       </Link>

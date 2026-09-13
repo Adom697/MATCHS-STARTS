@@ -116,7 +116,7 @@ export default async function DashboardPage() {
   const avgRating = ratingCount > 0 ? (ratingSum / ratingCount).toFixed(1) : null;
 
   return (
-    <div className="min-h-screen bg-background px-5 py-8 max-w-2xl mx-auto">
+    <div className="min-h-screen px-5 py-8 max-w-2xl mx-auto">
       <div className="flex justify-between items-center mb-2">
         {user.email === 'cedriccassy312@gmail.com' ? (
           <Link href="/admin" className="text-muted text-sm hover:text-foreground">

@@ -147,7 +147,7 @@ export default async function LiveMatchPage({ params }: { params: Promise<{ id: 
   const groups = groupsForPosition(position);
 
   return (
-    <div className="min-h-screen bg-background px-4 py-6 max-w-2xl mx-auto pb-32">
+    <div className="min-h-screen px-4 py-6 max-w-2xl mx-auto pb-32">
       <div className="flex items-center justify-between mb-5">
         <div>
           <Link href="/dashboard" className="text-muted text-xs">
