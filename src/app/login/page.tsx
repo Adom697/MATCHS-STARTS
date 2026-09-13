@@ -13,7 +13,9 @@ export default async function LoginPage({
     <div className="min-h-screen flex items-center justify-center px-6 bg-background">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <h1 className="text-2xl font-bold text-foreground">MatchStat</h1>
+          <h1 className="text-2xl font-bold text-foreground">
+            <span className="inline-block animate-bounce mr-1.5">⚽</span>MatchStat
+          </h1>
           <p className="text-muted mt-1 text-sm">Suis tes performances, match après match.</p>
         </div>
 
