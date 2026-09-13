@@ -10,8 +10,12 @@ export default async function LoginPage({
   const { error, info } = await searchParams;
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-6">
-      <div className="w-full max-w-sm">
+    <div
+      className="min-h-screen flex items-center justify-center px-6 relative bg-cover bg-center bg-no-repeat"
+      style={{ backgroundImage: "url('/images/stadium-bg.jpg')" }}
+    >
+      <div className="absolute inset-0 bg-black/70" />
+      <div className="w-full max-w-sm relative z-10">
         <div className="mb-6 text-center">
           <div className="relative w-24 h-28 mx-auto mb-2">
             {/* Ball bouncing on the player's foot */}
