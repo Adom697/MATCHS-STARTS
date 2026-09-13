@@ -3,6 +3,7 @@ import { logOut } from '@/lib/actions/auth';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { AnimatedNumber } from '@/components/AnimatedNumber';
+import { StadiumBackground } from '@/components/StadiumBackground';
 
 const MIDFIELD_ATTACK_LABELS: Record<string, string> = {
   touches: 'Touches de balle',
@@ -116,7 +117,8 @@ export default async function DashboardPage() {
   const avgRating = ratingCount > 0 ? (ratingSum / ratingCount).toFixed(1) : null;
 
   return (
-    <div className="min-h-screen px-5 py-8 max-w-2xl mx-auto">
+    <div className="min-h-screen px-5 py-8 max-w-2xl mx-auto relative">
+      <StadiumBackground overlay={0.65} />
       <div className="flex justify-between items-center mb-2">
         {user.email === 'cedriccassy312@gmail.com' ? (
           <Link href="/admin" className="text-muted text-sm hover:text-foreground">

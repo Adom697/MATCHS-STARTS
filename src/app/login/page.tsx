@@ -1,5 +1,6 @@
 import { logIn } from '@/lib/actions/auth';
 import { PasswordInput } from '@/components/PasswordInput';
+import { StadiumBackground } from '@/components/StadiumBackground';
 import Link from 'next/link';
 
 export default async function LoginPage({
@@ -10,11 +11,8 @@ export default async function LoginPage({
   const { error, info } = await searchParams;
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center px-6 relative bg-cover bg-center bg-no-repeat"
-      style={{ backgroundImage: "url('/images/stadium-bg.jpg')" }}
-    >
-      <div className="absolute inset-0 bg-black/70" />
+    <div className="min-h-screen flex items-center justify-center px-6 relative">
+      <StadiumBackground overlay={0.5} />
       <div className="w-full max-w-sm relative z-10">
         <div className="mb-6 text-center">
           <div className="relative w-24 h-28 mx-auto mb-2">
