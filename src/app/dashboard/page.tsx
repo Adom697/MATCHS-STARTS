@@ -160,13 +160,13 @@ export default async function DashboardPage() {
         <div className="grid grid-cols-2 gap-2 mb-3">
           <Link
             href="/profile/edit"
-            className="text-center border border-border text-foreground rounded-xl py-2.5 text-sm hover:border-accent transition-colors"
+            className="text-center border border-border text-foreground rounded-xl py-2.5 text-sm hover:border-accent active:scale-[0.98] transition-all"
           >
             Modifier mon profil
           </Link>
           <Link
             href="/profile/career"
-            className="text-center border border-border text-foreground rounded-xl py-2.5 text-sm hover:border-accent transition-colors"
+            className="text-center border border-border text-foreground rounded-xl py-2.5 text-sm hover:border-accent active:scale-[0.98] transition-all"
           >
             Parcours & clubs
           </Link>
@@ -175,7 +175,7 @@ export default async function DashboardPage() {
 
       <Link
         href="/analysis"
-        className="flex items-center justify-center gap-2 w-full text-center border border-border text-foreground rounded-xl py-2.5 mb-3 text-sm hover:border-accent transition-colors"
+        className="flex items-center justify-center gap-2 w-full text-center border border-border text-foreground rounded-xl py-2.5 mb-3 text-sm hover:border-accent active:scale-[0.98] transition-all"
       >
         Analyse & Progression
         <span className="text-[10px] font-semibold text-accent bg-accent-strong/15 px-2 py-0.5 rounded-full">
@@ -186,7 +186,7 @@ export default async function DashboardPage() {
       {!isAssistant && (
         <Link
           href="/profile/subscription"
-          className="flex items-center justify-center gap-2 w-full text-center border border-border text-foreground rounded-xl py-2.5 mb-3 text-sm hover:border-accent transition-colors"
+          className="flex items-center justify-center gap-2 w-full text-center border border-border text-foreground rounded-xl py-2.5 mb-3 text-sm hover:border-accent active:scale-[0.98] transition-all"
         >
           Abonnement
           <span
@@ -212,7 +212,7 @@ export default async function DashboardPage() {
 
       <Link
         href="/matches/new"
-        className="block w-full text-center bg-accent-strong hover:bg-accent text-black font-semibold rounded-xl py-3.5 mb-3 transition-colors"
+        className="block w-full text-center bg-accent-strong hover:bg-accent active:scale-[0.98] text-black font-semibold rounded-xl py-3.5 mb-3 transition-transform animate-pulse-cta"
       >
         + Nouveau match
       </Link>
@@ -296,7 +296,7 @@ export default async function DashboardPage() {
             <Link
               key={m.id}
               href={m.status === 'termine' ? `/matches/${m.id}` : `/matches/${m.id}/live`}
-              className="flex items-center justify-between bg-surface border border-border rounded-xl px-4 py-3 hover:border-accent transition-colors"
+              className="flex items-center justify-between bg-surface border border-border rounded-xl px-4 py-3 hover:border-accent active:scale-[0.98] transition-all"
             >
               <div>
                 <p className="text-foreground font-medium">vs {m.opponent}</p>
