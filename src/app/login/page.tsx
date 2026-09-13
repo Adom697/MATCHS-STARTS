@@ -26,7 +26,7 @@ export default async function LoginPage({
           </div>
         )}
 
-        <form action={logIn} className="bg-surface border border-border rounded-2xl p-6 space-y-4">
+        <form action={logIn} className="bg-surface border border-border rounded-2xl p-6 space-y-4 animate-in">
           <div>
             <label className="block text-sm text-muted mb-1.5">Email</label>
             <input

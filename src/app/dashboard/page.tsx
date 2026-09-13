@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { logOut } from '@/lib/actions/auth';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import { AnimatedNumber } from '@/components/AnimatedNumber';
 
 const MIDFIELD_ATTACK_LABELS: Record<string, string> = {
   touches: 'Touches de balle',
@@ -131,7 +132,7 @@ export default async function DashboardPage() {
         </form>
       </div>
 
-      <div className="flex flex-col items-center text-center mb-8">
+      <div className="flex flex-col items-center text-center mb-8 animate-in">
         {player.avatar_url ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -223,28 +224,36 @@ export default async function DashboardPage() {
         💬 Donner mon avis sur l&apos;app
       </Link>
 
-      <section className="mb-8">
+      <section className="mb-8 animate-in">
         <h2 className="text-sm font-semibold text-muted uppercase tracking-wide mb-3">
           Bilan de la saison · {playedCount} match{playedCount > 1 ? 's' : ''} joué{playedCount > 1 ? 's' : ''}
         </h2>
         <div className="grid grid-cols-3 gap-3 mb-3">
           <div className="bg-surface border border-border rounded-xl p-3.5 text-center">
-            <p className="text-2xl font-bold text-accent">{wins}</p>
+            <p className="text-2xl font-bold text-accent">
+              <AnimatedNumber value={wins} />
+            </p>
             <p className="text-xs text-muted mt-0.5">Victoires</p>
           </div>
           <div className="bg-surface border border-border rounded-xl p-3.5 text-center">
-            <p className="text-2xl font-bold text-foreground">{draws}</p>
+            <p className="text-2xl font-bold text-foreground">
+              <AnimatedNumber value={draws} />
+            </p>
             <p className="text-xs text-muted mt-0.5">Nuls</p>
           </div>
           <div className="bg-surface border border-border rounded-xl p-3.5 text-center">
-            <p className="text-2xl font-bold text-danger">{losses}</p>
+            <p className="text-2xl font-bold text-danger">
+              <AnimatedNumber value={losses} />
+            </p>
             <p className="text-xs text-muted mt-0.5">Défaites</p>
           </div>
         </div>
         <div className={`grid gap-3 ${isGoalkeeper || avgRating ? 'grid-cols-2' : 'grid-cols-1'}`}>
           {isGoalkeeper && (
             <div className="bg-surface border border-border rounded-xl p-3.5 text-center">
-              <p className="text-2xl font-bold text-accent">{cleanSheets}</p>
+              <p className="text-2xl font-bold text-accent">
+                <AnimatedNumber value={cleanSheets} />
+              </p>
               <p className="text-xs text-muted mt-0.5">Clean sheets</p>
             </div>
           )}
@@ -257,14 +266,20 @@ export default async function DashboardPage() {
         </div>
       </section>
 
-      <section className="mb-8">
+      <section className="mb-8 animate-in" style={{ animationDelay: '80ms' }}>
         <h2 className="text-sm font-semibold text-muted uppercase tracking-wide mb-3">
           Statistiques · {matchCount} match{matchCount > 1 ? 's' : ''}
         </h2>
         <div className="grid grid-cols-2 gap-3">
-          {Object.entries(STAT_LABELS).map(([key, label]) => (
-            <div key={key} className="bg-surface border border-border rounded-xl p-3.5">
-              <p className="text-2xl font-bold text-accent">{seasonTotals[key]}</p>
+          {Object.entries(STAT_LABELS).map(([key, label], i) => (
+            <div
+              key={key}
+              className="bg-surface border border-border rounded-xl p-3.5 animate-in"
+              style={{ animationDelay: `${120 + i * 40}ms` }}
+            >
+              <p className="text-2xl font-bold text-accent">
+                <AnimatedNumber value={seasonTotals[key]} />
+              </p>
               <p className="text-xs text-muted mt-0.5">{label}</p>
             </div>
           ))}
@@ -299,6 +314,9 @@ export default async function DashboardPage() {
                     : 'bg-accent/20 text-accent'
                 }`}
               >
+                {m.status === 'en_direct' && (
+                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-danger mr-1.5 animate-pulse-live" />
+                )}
                 {m.status === 'en_direct' ? 'En direct' : m.status === 'termine' ? 'Terminé' : 'À venir'}
               </span>
             </Link>

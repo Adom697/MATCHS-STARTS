@@ -58,7 +58,7 @@ begin
   end if;
 
   return query
-    select f.message, f.rating, f.created_at, u.email
+    select f.message, f.rating, f.created_at, u.email::text
     from feedback f
     join auth.users u on u.id = f.user_id
     where f.message not like '[Système]%'
