@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { KkiapayButton } from '@/components/KkiapayButton';
+import { StadiumBackground } from '@/components/StadiumBackground';
 
 export default async function SubscriptionPage({
   searchParams,
@@ -19,7 +20,8 @@ export default async function SubscriptionPage({
   const isPro = player?.plan === 'pro';
 
   return (
-    <div className="min-h-screen px-5 py-8 max-w-md mx-auto">
+    <div className="min-h-screen px-5 py-8 max-w-md mx-auto relative">
+      <StadiumBackground src="/images/subscription-bg.jpg" overlay={0.72} />
       <Link href="/dashboard" className="text-muted text-sm mb-4 inline-block">
         ← Tableau de bord
       </Link>
