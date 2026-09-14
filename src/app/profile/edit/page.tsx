@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { updatePlayerProfile } from '@/lib/actions/profile';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import { PlayerCardAvatar } from '@/components/PlayerCardAvatar';
 
 export default async function EditProfilePage({
   searchParams,
@@ -32,19 +33,11 @@ export default async function EditProfilePage({
         className="bg-surface border border-border rounded-2xl p-6 space-y-4"
       >
         <div className="flex items-center gap-4">
-          {player.avatar_url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={player.avatar_url}
-              alt="Photo de profil"
-              className="w-16 h-16 rounded-full object-cover border border-border"
-            />
-          ) : (
-            <div className="w-16 h-16 rounded-full bg-surface-2 border border-border flex items-center justify-center text-muted text-xl">
-              {player.first_name?.[0]}
-              {player.last_name?.[0]}
-            </div>
-          )}
+          <PlayerCardAvatar
+            src={player.avatar_url}
+            initials={`${player.first_name?.[0] || ''}${player.last_name?.[0] || ''}`}
+            size={56}
+          />
           <div className="flex-1">
             <label className="block text-sm text-muted mb-1.5">Photo de profil</label>
             <input

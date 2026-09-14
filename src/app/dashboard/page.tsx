@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { AnimatedNumber } from '@/components/AnimatedNumber';
 import { StadiumBackground } from '@/components/StadiumBackground';
+import { PlayerCardAvatar } from '@/components/PlayerCardAvatar';
 
 const MIDFIELD_ATTACK_LABELS: Record<string, string> = {
   touches: 'Touches de balle',
@@ -135,19 +136,11 @@ export default async function DashboardPage() {
       </div>
 
       <div className="flex flex-col items-center text-center mb-8 animate-in">
-        {player.avatar_url ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={player.avatar_url}
-            alt={player.first_name}
-            className="w-24 h-24 rounded-full object-cover border-2 border-accent"
-          />
-        ) : (
-          <div className="w-24 h-24 rounded-full bg-surface-2 border-2 border-border flex items-center justify-center text-muted text-3xl font-medium">
-            {player.first_name?.[0]}
-            {player.last_name?.[0]}
-          </div>
-        )}
+        <PlayerCardAvatar
+          src={player.avatar_url}
+          initials={`${player.first_name?.[0] || ''}${player.last_name?.[0] || ''}`}
+          size={100}
+        />
         <h1 className="text-2xl font-bold text-foreground mt-3">
           {player.first_name} {player.last_name}
         </h1>
