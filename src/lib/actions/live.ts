@@ -3,7 +3,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { EVENT_TO_COLUMN } from '@/lib/event-columns';
+import { EVENT_TO_COLUMN, TOUCH_EVENTS } from '@/lib/event-columns';
 
 export async function recordEvent(matchId: string, eventType: string) {
   const supabase = await createClient();
@@ -23,16 +23,21 @@ export async function recordEvent(matchId: string, eventType: string) {
 
   const { data: current } = await supabase
     .from('match_stats')
-    .select(column)
+    .select(`${column}, touches`)
     .eq('match_id', matchId)
     .single();
 
-  const currentValue = (current as unknown as Record<string, number>)?.[column] || 0;
+  const row = (current as unknown as Record<string, number>) || {};
+  const updates: Record<string, number | string> = {
+    [column]: (row[column] || 0) + 1,
+    updated_at: new Date().toISOString(),
+  };
 
-  await supabase
-    .from('match_stats')
-    .update({ [column]: currentValue + 1, updated_at: new Date().toISOString() })
-    .eq('match_id', matchId);
+  if (TOUCH_EVENTS.has(eventType)) {
+    updates.touches = (row.touches || 0) + 1;
+  }
+
+  await supabase.from('match_stats').update(updates).eq('match_id', matchId);
 
   await supabase
     .from('matches')
@@ -60,16 +65,21 @@ export async function undoLastEvent(matchId: string) {
   if (column) {
     const { data: current } = await supabase
       .from('match_stats')
-      .select(column)
+      .select(`${column}, touches`)
       .eq('match_id', matchId)
       .single();
 
-    const currentValue = (current as unknown as Record<string, number>)?.[column] || 0;
+    const row = (current as unknown as Record<string, number>) || {};
+    const updates: Record<string, number | string> = {
+      [column]: Math.max(0, (row[column] || 0) - 1),
+      updated_at: new Date().toISOString(),
+    };
 
-    await supabase
-      .from('match_stats')
-      .update({ [column]: Math.max(0, currentValue - 1), updated_at: new Date().toISOString() })
-      .eq('match_id', matchId);
+    if (TOUCH_EVENTS.has(lastEvent.event_type)) {
+      updates.touches = Math.max(0, (row.touches || 0) - 1);
+    }
+
+    await supabase.from('match_stats').update(updates).eq('match_id', matchId);
   }
 
   await supabase.from('match_events').delete().eq('id', lastEvent.id);
