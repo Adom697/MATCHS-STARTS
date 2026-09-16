@@ -1,3 +1,4 @@
+import { SubmitButton } from '@/components/SubmitButton';
 import { createClient } from '@/lib/supabase/server';
 import { addCareerEntry, deleteCareerEntry } from '@/lib/actions/career';
 import { redirect } from 'next/navigation';
@@ -64,12 +65,7 @@ export default async function CareerPage() {
           <input name="is_current" type="checkbox" className="w-4 h-4 accent-accent-strong" />
           <span className="text-sm text-muted">C&apos;est mon club actuel</span>
         </label>
-        <button
-          type="submit"
-          className="w-full bg-accent-strong hover:bg-accent text-black font-semibold rounded-lg py-2.5 transition-colors"
-        >
-          Ajouter
-        </button>
+        <SubmitButton pendingText="Ajout...">Ajouter</SubmitButton>
       </form>
 
       <h2 className="text-sm font-semibold text-muted uppercase tracking-wide mb-4">Frise chronologique</h2>

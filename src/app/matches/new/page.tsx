@@ -1,3 +1,4 @@
+import { SubmitButton } from '@/components/SubmitButton';
 import { createMatch } from '@/lib/actions/matches';
 import Link from 'next/link';
 
@@ -66,12 +67,7 @@ export default async function NewMatchPage({
 
           {error && <p className="text-danger text-sm">{error}</p>}
 
-          <button
-            type="submit"
-            className="w-full bg-accent-strong hover:bg-accent text-black font-semibold rounded-lg py-2.5 transition-colors"
-          >
-            Démarrer la saisie live
-          </button>
+          <SubmitButton pendingText="Démarrage...">Démarrer la saisie live</SubmitButton>
         </form>
       </div>
     </div>

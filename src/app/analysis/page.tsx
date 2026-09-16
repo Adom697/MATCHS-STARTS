@@ -59,7 +59,7 @@ export default async function AnalysisPage() {
     .eq('player_id', player.id)
     .eq('status', 'termine')
     .order('match_date', { ascending: false })
-    .limit(10);
+    .limit(4);
 
   const allMatches = matches || [];
   const statsOf = (m: (typeof allMatches)[number]) => {
@@ -67,8 +67,8 @@ export default async function AnalysisPage() {
     return (s || {}) as MatchStatsRow;
   };
 
-  const recent = allMatches.slice(0, 5).map(statsOf);
-  const previous = allMatches.slice(5, 10).map(statsOf);
+  const recent = allMatches.slice(0, 2).map(statsOf);
+  const previous = allMatches.slice(2, 4).map(statsOf);
 
   const weaknesses = analyzeWeaknesses(player.position, recent, previous);
 

@@ -1,5 +1,6 @@
 import { signUpPlayer, signUpAssistant } from '@/lib/actions/auth';
 import { PasswordInput } from '@/components/PasswordInput';
+import { SubmitButton } from '@/components/SubmitButton';
 import Link from 'next/link';
 
 export default async function SignupPage({
@@ -75,12 +76,7 @@ export default async function SignupPage({
 
           {error && <p className="text-danger text-sm">{error}</p>}
 
-          <button
-            type="submit"
-            className="w-full bg-accent-strong hover:bg-accent text-black font-semibold rounded-lg py-2.5 transition-colors"
-          >
-            Créer mon compte
-          </button>
+          <SubmitButton pendingText="Création...">Créer mon compte</SubmitButton>
         </form>
 
         <p className="text-center text-muted text-sm mt-5">

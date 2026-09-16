@@ -1,3 +1,4 @@
+import { SubmitButton } from '@/components/SubmitButton';
 import { createPlayerProfile } from '@/lib/actions/player';
 
 export default async function OnboardingPage({
@@ -107,12 +108,7 @@ export default async function OnboardingPage({
 
           {error && <p className="text-danger text-sm">{error}</p>}
 
-          <button
-            type="submit"
-            className="w-full bg-accent-strong hover:bg-accent text-black font-semibold rounded-lg py-2.5 transition-colors"
-          >
-            Continuer
-          </button>
+          <SubmitButton pendingText="Enregistrement...">Continuer</SubmitButton>
         </form>
       </div>
     </div>

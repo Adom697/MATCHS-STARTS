@@ -1,3 +1,4 @@
+import { SubmitButton } from '@/components/SubmitButton';
 import { requestPasswordReset } from '@/lib/actions/auth';
 import Link from 'next/link';
 
@@ -37,12 +38,7 @@ export default async function ForgotPasswordPage({
                 placeholder="toi@exemple.com"
               />
             </div>
-            <button
-              type="submit"
-              className="w-full bg-accent-strong hover:bg-accent text-black font-semibold rounded-lg py-2.5 transition-colors"
-            >
-              Envoyer le lien
-            </button>
+            <SubmitButton pendingText="Envoi...">Envoyer le lien</SubmitButton>
           </form>
         )}
 

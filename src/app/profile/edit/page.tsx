@@ -1,3 +1,4 @@
+import { SubmitButton } from '@/components/SubmitButton';
 import { createClient } from '@/lib/supabase/server';
 import { updatePlayerProfile } from '@/lib/actions/profile';
 import { redirect } from 'next/navigation';
@@ -146,12 +147,7 @@ export default async function EditProfilePage({
 
         {error && <p className="text-danger text-sm">{error}</p>}
 
-        <button
-          type="submit"
-          className="w-full bg-accent-strong hover:bg-accent text-black font-semibold rounded-lg py-2.5 transition-colors"
-        >
-          Enregistrer
-        </button>
+        <SubmitButton pendingText="Enregistrement...">Enregistrer</SubmitButton>
       </form>
     </div>
   );

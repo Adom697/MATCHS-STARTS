@@ -1,3 +1,4 @@
+import { SubmitButton } from '@/components/SubmitButton';
 import { submitFeedback } from '@/lib/actions/feedback';
 import Link from 'next/link';
 
@@ -53,12 +54,7 @@ export default async function FeedbackPage({
             />
           </div>
 
-          <button
-            type="submit"
-            className="w-full bg-accent-strong hover:bg-accent text-black font-semibold rounded-lg py-2.5 transition-colors"
-          >
-            Envoyer
-          </button>
+          <SubmitButton pendingText="Envoi...">Envoyer</SubmitButton>
         </form>
       )}
     </div>
