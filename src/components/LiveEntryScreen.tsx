@@ -12,11 +12,15 @@ export function LiveEntryScreen({
   groups,
   initialStats,
   position,
+  undoLabel,
+  locale = 'fr',
 }: {
   matchId: string;
   groups: ButtonGroup[];
   initialStats: Record<string, number>;
   position: Position;
+  undoLabel?: string;
+  locale?: 'fr' | 'en';
 }) {
   const [stats, setStats] = useState(initialStats);
   const [history, setHistory] = useState<string[]>([]);
@@ -69,33 +73,33 @@ export function LiveEntryScreen({
           onClick={handleUndo}
           className="text-sm text-muted border border-border rounded-lg px-3 py-2 hover:text-foreground active:scale-95 transition-transform"
         >
-          ↩ Annuler
+          ↩ {undoLabel ? undoLabel.replace('↩ ', '') : 'Annuler'}
         </button>
       </div>
 
       <div className="grid grid-cols-3 gap-2 mb-6">
         {isGoalkeeper ? (
           <>
-            <QuickStat value={stats.arrets} label="Arrêts" />
-            <QuickStat value={stats.buts_encaisses} label="Buts encaissés" />
+            <QuickStat value={stats.arrets} label={locale === 'en' ? 'Saves' : 'Arrêts'} />
+            <QuickStat value={stats.buts_encaisses} label={locale === 'en' ? 'Conceded' : 'Buts encaissés'} />
             <QuickStat
               value={`${stats.degagements_reussis}/${stats.degagements_reussis + stats.degagements_rates}`}
-              label="Dégagements"
+              label={locale === 'en' ? 'Clearances' : 'Dégagements'}
             />
           </>
         ) : isDefender ? (
           <>
-            <QuickStat value={stats.tacles_reussis} label="Tacles réussis" />
-            <QuickStat value={stats.interceptions} label="Interceptions" />
-            <QuickStat value={stats.duels_aeriens_gagnes} label="Duels aériens" />
+            <QuickStat value={stats.tacles_reussis} label={locale === 'en' ? 'Tackles won' : 'Tacles réussis'} />
+            <QuickStat value={stats.interceptions} label={locale === 'en' ? 'Interceptions' : 'Interceptions'} />
+            <QuickStat value={stats.duels_aeriens_gagnes} label={locale === 'en' ? 'Aerial duels' : 'Duels aériens'} />
           </>
         ) : (
           <>
-            <QuickStat value={stats.touches} label="Touches" />
-            <QuickStat value={stats.buts} label="Buts" />
+            <QuickStat value={stats.touches} label={locale === 'en' ? 'Touches' : 'Touches'} />
+            <QuickStat value={stats.buts} label={locale === 'en' ? 'Goals' : 'Buts'} />
             <QuickStat
               value={`${stats.passes_reussies}/${stats.passes_reussies + stats.passes_ratees}`}
-              label="Passes"
+              label={locale === 'en' ? 'Passes' : 'Passes'}
             />
           </>
         )}

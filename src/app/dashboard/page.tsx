@@ -5,8 +5,11 @@ import Link from 'next/link';
 import { AnimatedNumber } from '@/components/AnimatedNumber';
 import { StadiumBackground } from '@/components/StadiumBackground';
 import { PlayerCardAvatar } from '@/components/PlayerCardAvatar';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
+import { getLocale } from '@/lib/locale';
+import { getDictionary, translatePosition } from '@/lib/i18n';
 
-const MIDFIELD_ATTACK_LABELS: Record<string, string> = {
+const MIDFIELD_ATTACK_LABELS_FR: Record<string, string> = {
   touches: 'Touches de balle',
   passes_reussies: 'Passes réussies',
   passes_ratees: 'Passes ratées',
@@ -17,7 +20,7 @@ const MIDFIELD_ATTACK_LABELS: Record<string, string> = {
   buts: 'Buts',
 };
 
-const DEFENDER_LABELS: Record<string, string> = {
+const DEFENDER_LABELS_FR: Record<string, string> = {
   tacles_reussis: 'Tacles réussis',
   tacles_rates: 'Tacles ratés',
   interceptions: 'Interceptions',
@@ -28,7 +31,7 @@ const DEFENDER_LABELS: Record<string, string> = {
   fautes_commises: 'Fautes commises',
 };
 
-const GOALKEEPER_LABELS: Record<string, string> = {
+const GOALKEEPER_LABELS_FR: Record<string, string> = {
   arrets: 'Arrêts',
   buts_encaisses: 'Buts encaissés',
   penalties_arretes: 'Penaltys arrêtés',
@@ -39,10 +42,48 @@ const GOALKEEPER_LABELS: Record<string, string> = {
   passes_ratees: 'Passes ratées',
 };
 
-function labelsForPosition(position: string | null) {
-  if (position === 'Gardien') return GOALKEEPER_LABELS;
-  if (position === 'Défenseur') return DEFENDER_LABELS;
-  return MIDFIELD_ATTACK_LABELS;
+const MIDFIELD_ATTACK_LABELS_EN: Record<string, string> = {
+  touches: 'Touches',
+  passes_reussies: 'Passes completed',
+  passes_ratees: 'Passes missed',
+  passes_decisives: 'Key passes',
+  dribbles_reussis: 'Dribbles won',
+  dribbles_rates: 'Dribbles lost',
+  tirs_cadres: 'Shots on target',
+  buts: 'Goals',
+};
+
+const DEFENDER_LABELS_EN: Record<string, string> = {
+  tacles_reussis: 'Tackles won',
+  tacles_rates: 'Tackles lost',
+  interceptions: 'Interceptions',
+  duels_aeriens_gagnes: 'Aerial duels won',
+  degagements_reussis: 'Clearances',
+  passes_reussies: 'Passes completed',
+  passes_ratees: 'Passes missed',
+  fautes_commises: 'Fouls committed',
+};
+
+const GOALKEEPER_LABELS_EN: Record<string, string> = {
+  arrets: 'Saves',
+  buts_encaisses: 'Goals conceded',
+  penalties_arretes: 'Penalties saved',
+  degagements_reussis: 'Clearances',
+  degagements_rates: 'Failed clearances',
+  sorties_aeriennes_reussies: 'Claims',
+  passes_reussies: 'Passes completed',
+  passes_ratees: 'Passes missed',
+};
+
+function labelsForPosition(position: string | null, locale: 'fr' | 'en') {
+  if (locale === 'en') {
+    if (position === 'Gardien') return GOALKEEPER_LABELS_EN;
+    if (position === 'Défenseur') return DEFENDER_LABELS_EN;
+    return MIDFIELD_ATTACK_LABELS_EN;
+  }
+  if (position === 'Gardien') return GOALKEEPER_LABELS_FR;
+  if (position === 'Défenseur') return DEFENDER_LABELS_FR;
+  return MIDFIELD_ATTACK_LABELS_FR;
 }
 
 export default async function DashboardPage() {
@@ -52,6 +93,9 @@ export default async function DashboardPage() {
   } = await supabase.auth.getUser();
 
   if (!user) redirect('/login');
+
+  const locale = await getLocale();
+  const t = getDictionary(locale);
 
   let player = (await supabase.from('players').select('*').eq('id', user.id).maybeSingle()).data;
   let isAssistant = false;
@@ -72,7 +116,7 @@ export default async function DashboardPage() {
   if (!player) redirect('/onboarding');
 
   const isGoalkeeper = player.position === 'Gardien';
-  const STAT_LABELS = labelsForPosition(player.position);
+  const STAT_LABELS = labelsForPosition(player.position, locale);
 
   const { data: matches } = await supabase
     .from('matches')
@@ -116,6 +160,7 @@ export default async function DashboardPage() {
 
   const matchCount = matches?.length || 0;
   const avgRating = ratingCount > 0 ? (ratingSum / ratingCount).toFixed(1) : null;
+  const dateLocale = locale === 'en' ? 'en-GB' : 'fr-FR';
 
   return (
     <div className="min-h-screen px-5 py-8 max-w-2xl mx-auto relative">
@@ -128,11 +173,14 @@ export default async function DashboardPage() {
         ) : (
           <span />
         )}
-        <form action={logOut}>
-          <button type="submit" className="text-muted text-sm hover:text-foreground">
-            Déconnexion
-          </button>
-        </form>
+        <div className="flex items-center gap-3">
+          <LanguageSwitcher locale={locale} returnTo="/dashboard" />
+          <form action={logOut}>
+            <button type="submit" className="text-muted text-sm hover:text-foreground">
+              {t.dash_logout}
+            </button>
+          </form>
+        </div>
       </div>
 
       <div className="flex flex-col items-center text-center mb-8 animate-in">
@@ -145,8 +193,8 @@ export default async function DashboardPage() {
           {player.first_name} {player.last_name}
         </h1>
         <p className="text-muted text-sm mt-0.5">
-          {player.current_club || 'Aucun club renseigné'}
-          {player.position ? ` · ${player.position}` : ''}
+          {player.current_club || (locale === 'en' ? 'No club yet' : 'Aucun club renseigné')}
+          {player.position ? ` · ${translatePosition(player.position, locale)}` : ''}
           {player.jersey_number ? ` · #${player.jersey_number}` : ''}
         </p>
       </div>
@@ -157,13 +205,13 @@ export default async function DashboardPage() {
             href="/profile/edit"
             className="text-center border border-border text-foreground rounded-xl py-2.5 text-sm hover:border-accent active:scale-[0.98] transition-all"
           >
-            Modifier mon profil
+            {t.dash_edit_profile}
           </Link>
           <Link
             href="/profile/career"
             className="text-center border border-border text-foreground rounded-xl py-2.5 text-sm hover:border-accent active:scale-[0.98] transition-all"
           >
-            Parcours & clubs
+            {t.dash_career}
           </Link>
         </div>
       )}
@@ -172,7 +220,7 @@ export default async function DashboardPage() {
         href="/analysis"
         className="flex items-center justify-center gap-2 w-full text-center border border-border text-foreground rounded-xl py-2.5 mb-3 text-sm hover:border-accent active:scale-[0.98] transition-all"
       >
-        Analyse & Progression
+        {t.dash_analysis}
         <span className="text-[10px] font-semibold text-accent bg-accent-strong/15 px-2 py-0.5 rounded-full">
           PRO
         </span>
@@ -183,13 +231,13 @@ export default async function DashboardPage() {
           href="/profile/subscription"
           className="flex items-center justify-center gap-2 w-full text-center border border-border text-foreground rounded-xl py-2.5 mb-3 text-sm hover:border-accent active:scale-[0.98] transition-all"
         >
-          Abonnement
+          {t.dash_subscription}
           <span
             className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
               player.plan === 'pro' ? 'text-accent bg-accent-strong/15' : 'text-muted bg-surface-2'
             }`}
           >
-            {player.plan === 'pro' ? 'PRO' : 'GRATUIT'}
+            {player.plan === 'pro' ? 'PRO' : locale === 'en' ? 'FREE' : 'GRATUIT'}
           </span>
         </Link>
       )}
@@ -201,7 +249,7 @@ export default async function DashboardPage() {
           rel="noopener noreferrer"
           className="block w-full text-center text-accent text-sm py-2 mb-3 underline"
         >
-          Voir ma page vitrine →
+          {t.dash_view_vitrine}
         </a>
       )}
 
@@ -209,38 +257,39 @@ export default async function DashboardPage() {
         href="/matches/new"
         className="block w-full text-center bg-accent-strong hover:bg-accent active:scale-[0.98] text-black font-semibold rounded-xl py-3.5 mb-3 transition-transform animate-pulse-cta"
       >
-        + Nouveau match
+        {t.dash_new_match}
       </Link>
 
       <Link
         href="/feedback"
         className="block w-full text-center text-muted text-sm py-2 mb-8 hover:text-foreground transition-colors"
       >
-        💬 Donner mon avis sur l&apos;app
+        {t.dash_feedback}
       </Link>
 
       <section className="mb-8 animate-in">
         <h2 className="text-sm font-semibold text-muted uppercase tracking-wide mb-3">
-          Bilan de la saison · {playedCount} match{playedCount > 1 ? 's' : ''} joué{playedCount > 1 ? 's' : ''}
+          {t.dash_season_summary} · {playedCount} {playedCount > 1 ? t.dash_matches_played_plural : t.dash_matches_played}{' '}
+          {playedCount > 1 ? t.dash_played_plural : t.dash_played}
         </h2>
         <div className="grid grid-cols-3 gap-3 mb-3">
           <div className="bg-surface border border-border rounded-xl p-3.5 text-center">
             <p className="text-2xl font-bold text-accent">
               <AnimatedNumber value={wins} />
             </p>
-            <p className="text-xs text-muted mt-0.5">Victoires</p>
+            <p className="text-xs text-muted mt-0.5">{t.dash_wins}</p>
           </div>
           <div className="bg-surface border border-border rounded-xl p-3.5 text-center">
             <p className="text-2xl font-bold text-foreground">
               <AnimatedNumber value={draws} />
             </p>
-            <p className="text-xs text-muted mt-0.5">Nuls</p>
+            <p className="text-xs text-muted mt-0.5">{t.dash_draws}</p>
           </div>
           <div className="bg-surface border border-border rounded-xl p-3.5 text-center">
             <p className="text-2xl font-bold text-danger">
               <AnimatedNumber value={losses} />
             </p>
-            <p className="text-xs text-muted mt-0.5">Défaites</p>
+            <p className="text-xs text-muted mt-0.5">{t.dash_losses}</p>
           </div>
         </div>
         <div className={`grid gap-3 ${isGoalkeeper || avgRating ? 'grid-cols-2' : 'grid-cols-1'}`}>
@@ -249,13 +298,13 @@ export default async function DashboardPage() {
               <p className="text-2xl font-bold text-accent">
                 <AnimatedNumber value={cleanSheets} />
               </p>
-              <p className="text-xs text-muted mt-0.5">Clean sheets</p>
+              <p className="text-xs text-muted mt-0.5">{t.dash_clean_sheets}</p>
             </div>
           )}
           {avgRating && (
             <div className="bg-surface border border-border rounded-xl p-3.5 text-center">
               <p className="text-2xl font-bold text-accent">{avgRating}/10</p>
-              <p className="text-xs text-muted mt-0.5">Note moyenne</p>
+              <p className="text-xs text-muted mt-0.5">{t.dash_avg_rating}</p>
             </div>
           )}
         </div>
@@ -263,7 +312,7 @@ export default async function DashboardPage() {
 
       <section className="mb-8 animate-in" style={{ animationDelay: '80ms' }}>
         <h2 className="text-sm font-semibold text-muted uppercase tracking-wide mb-3">
-          Statistiques · {matchCount} match{matchCount > 1 ? 's' : ''}
+          {t.dash_stats} · {matchCount} {matchCount > 1 ? t.dash_matches_played_plural : t.dash_matches_played}
         </h2>
         <div className="grid grid-cols-2 gap-3">
           {Object.entries(STAT_LABELS).map(([key, label], i) => (
@@ -282,11 +331,9 @@ export default async function DashboardPage() {
       </section>
 
       <section className="mb-8">
-        <h2 className="text-sm font-semibold text-muted uppercase tracking-wide mb-3">Matchs</h2>
+        <h2 className="text-sm font-semibold text-muted uppercase tracking-wide mb-3">{t.dash_matches}</h2>
         <div className="space-y-2">
-          {(matches || []).length === 0 && (
-            <p className="text-muted text-sm">Aucun match enregistré pour l&apos;instant.</p>
-          )}
+          {(matches || []).length === 0 && <p className="text-muted text-sm">{t.dash_no_matches}</p>}
           {(matches || []).map((m) => (
             <Link
               key={m.id}
@@ -296,7 +343,7 @@ export default async function DashboardPage() {
               <div>
                 <p className="text-foreground font-medium">vs {m.opponent}</p>
                 <p className="text-muted text-xs mt-0.5">
-                  {new Date(m.match_date).toLocaleDateString('fr-FR')}
+                  {new Date(m.match_date).toLocaleDateString(dateLocale)}
                   {m.competition ? ` · ${m.competition}` : ''}
                 </p>
               </div>
@@ -312,7 +359,7 @@ export default async function DashboardPage() {
                 {m.status === 'en_direct' && (
                   <span className="inline-block w-1.5 h-1.5 rounded-full bg-danger mr-1.5 animate-pulse-live" />
                 )}
-                {m.status === 'en_direct' ? 'En direct' : m.status === 'termine' ? 'Terminé' : 'À venir'}
+                {m.status === 'en_direct' ? t.dash_live : m.status === 'termine' ? t.dash_finished : t.dash_upcoming}
               </span>
             </Link>
           ))}
@@ -323,16 +370,14 @@ export default async function DashboardPage() {
         <section className="mb-8">
           <div className="bg-gradient-to-br from-accent-strong/15 to-surface border border-accent-strong/30 rounded-2xl p-5">
             <p className="text-foreground font-semibold mb-1">
-              {matchCount} matchs enregistrés — de quoi impressionner un recruteur 👀
+              {matchCount} {t.dash_upsell_title}
             </p>
-            <p className="text-muted text-sm mb-3">
-              Passe en Pro pour transformer tes stats en page vitrine, CV PDF et QR code partageable.
-            </p>
+            <p className="text-muted text-sm mb-3">{t.dash_upsell_body}</p>
             <Link
               href="/profile/subscription"
               className="inline-block bg-accent-strong hover:bg-accent text-black font-semibold rounded-lg px-4 py-2 text-sm transition-colors"
             >
-              Découvrir le Pro
+              {t.dash_upsell_cta}
             </Link>
           </div>
         </section>
@@ -340,11 +385,9 @@ export default async function DashboardPage() {
 
       {!isAssistant && (
         <section>
-          <h2 className="text-sm font-semibold text-muted uppercase tracking-wide mb-3">Assistants</h2>
+          <h2 className="text-sm font-semibold text-muted uppercase tracking-wide mb-3">{t.dash_assistants}</h2>
           <div className="bg-surface border border-border rounded-xl p-4">
-            <p className="text-muted text-sm mb-2">
-              Partage ce code à une personne pour qu&apos;elle puisse saisir tes stats en direct à ta place.
-            </p>
+            <p className="text-muted text-sm mb-2">{t.dash_assistants_help}</p>
             <p className="text-2xl font-mono font-bold text-accent tracking-widest">{player.invite_code}</p>
           </div>
         </section>

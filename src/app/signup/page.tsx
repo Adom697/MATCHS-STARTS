@@ -1,6 +1,9 @@
 import { signUpPlayer, signUpAssistant } from '@/lib/actions/auth';
 import { PasswordInput } from '@/components/PasswordInput';
 import { SubmitButton } from '@/components/SubmitButton';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
+import { getLocale } from '@/lib/locale';
+import { getDictionary } from '@/lib/i18n';
 import Link from 'next/link';
 
 export default async function SignupPage({
@@ -10,13 +13,18 @@ export default async function SignupPage({
 }) {
   const { role, error } = await searchParams;
   const isAssistant = role === 'assistant';
+  const locale = await getLocale();
+  const t = getDictionary(locale);
 
   return (
     <div className="min-h-screen flex items-center justify-center px-6">
       <div className="w-full max-w-sm">
+        <div className="flex justify-center mb-4">
+          <LanguageSwitcher locale={locale} returnTo={`/signup${role ? `?role=${role}` : ''}`} />
+        </div>
         <div className="mb-8 text-center">
-          <h1 className="text-2xl font-bold text-foreground">MatchStat</h1>
-          <p className="text-muted mt-1 text-sm">Crée ton compte pour commencer.</p>
+          <h1 className="text-2xl font-bold text-foreground">{t.signup_title}</h1>
+          <p className="text-muted mt-1 text-sm">{t.signup_subtitle}</p>
         </div>
 
         <div className="flex bg-surface-2 rounded-lg p-1 mb-5 border border-border">
@@ -26,7 +34,7 @@ export default async function SignupPage({
               !isAssistant ? 'bg-accent-strong text-black' : 'text-muted'
             }`}
           >
-            Je suis joueur
+            {t.signup_role_player}
           </Link>
           <Link
             href="/signup?role=assistant"
@@ -34,7 +42,7 @@ export default async function SignupPage({
               isAssistant ? 'bg-accent-strong text-black' : 'text-muted'
             }`}
           >
-            Je suis assistant
+            {t.signup_role_assistant}
           </Link>
         </div>
 
@@ -44,7 +52,7 @@ export default async function SignupPage({
         >
           {isAssistant && (
             <div>
-              <label className="block text-sm text-muted mb-1.5">Code d&apos;invitation du joueur</label>
+              <label className="block text-sm text-muted mb-1.5">{t.signup_invite_code}</label>
               <input
                 name="invite_code"
                 type="text"
@@ -53,14 +61,12 @@ export default async function SignupPage({
                 className="w-full bg-surface-2 border border-border rounded-lg px-4 py-2.5 text-foreground uppercase tracking-widest focus:outline-none focus:border-accent"
                 placeholder="EX: A1B2C3"
               />
-              <p className="text-xs text-muted mt-1">
-                Le joueur trouve ce code dans son tableau de bord, sous &quot;Assistants&quot;.
-              </p>
+              <p className="text-xs text-muted mt-1">{t.signup_invite_help}</p>
             </div>
           )}
 
           <div>
-            <label className="block text-sm text-muted mb-1.5">Email</label>
+            <label className="block text-sm text-muted mb-1.5">{t.signup_email}</label>
             <input
               name="email"
               type="email"
@@ -70,19 +76,19 @@ export default async function SignupPage({
             />
           </div>
           <div>
-            <label className="block text-sm text-muted mb-1.5">Mot de passe</label>
-            <PasswordInput name="password" placeholder="6 caractères minimum" required minLength={6} />
+            <label className="block text-sm text-muted mb-1.5">{t.signup_password}</label>
+            <PasswordInput name="password" placeholder={t.signup_password_hint} required minLength={6} />
           </div>
 
           {error && <p className="text-danger text-sm">{error}</p>}
 
-          <SubmitButton pendingText="Création...">Créer mon compte</SubmitButton>
+          <SubmitButton pendingText={t.signup_submit_pending}>{t.signup_submit}</SubmitButton>
         </form>
 
         <p className="text-center text-muted text-sm mt-5">
-          Déjà un compte ?{' '}
+          {t.signup_have_account}{' '}
           <Link href="/login" className="text-accent">
-            Connecte-toi
+            {t.signup_login}
           </Link>
         </p>
       </div>

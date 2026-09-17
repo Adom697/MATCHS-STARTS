@@ -2,6 +2,9 @@ import { logIn } from '@/lib/actions/auth';
 import { PasswordInput } from '@/components/PasswordInput';
 import { StadiumBackground } from '@/components/StadiumBackground';
 import { SubmitButton } from '@/components/SubmitButton';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
+import { getLocale } from '@/lib/locale';
+import { getDictionary } from '@/lib/i18n';
 import Link from 'next/link';
 
 export default async function LoginPage({
@@ -10,11 +13,16 @@ export default async function LoginPage({
   searchParams: Promise<{ error?: string; info?: string }>;
 }) {
   const { error, info } = await searchParams;
+  const locale = await getLocale();
+  const t = getDictionary(locale);
 
   return (
     <div className="min-h-screen flex items-center justify-center px-6 relative">
       <StadiumBackground overlay={0.5} />
       <div className="w-full max-w-sm relative z-10">
+        <div className="flex justify-center mb-4">
+          <LanguageSwitcher locale={locale} returnTo="/login" />
+        </div>
         <div className="mb-6 text-center">
           <div className="relative w-24 h-28 mx-auto mb-2">
             {/* Ball bouncing on the player's foot */}
@@ -46,22 +54,20 @@ export default async function LoginPage({
               </g>
             </svg>
           </div>
-          <h1 className="text-2xl font-bold text-foreground">MatchStat</h1>
-          <p className="text-muted mt-1 text-sm">Suis tes performances, match après match.</p>
+          <h1 className="text-2xl font-bold text-foreground">{t.login_title}</h1>
+          <p className="text-muted mt-1 text-sm">{t.login_subtitle}</p>
         </div>
 
         {info === 'confirm_email' && (
           <div className="bg-accent-strong/15 border border-accent-strong/30 rounded-xl p-4 mb-4 text-center">
-            <p className="text-accent text-sm font-medium">Compte créé !</p>
-            <p className="text-muted text-xs mt-1">
-              Vérifie ta boîte mail (et les spams) pour confirmer ton adresse avant de te connecter.
-            </p>
+            <p className="text-accent text-sm font-medium">{t.login_confirm_title}</p>
+            <p className="text-muted text-xs mt-1">{t.login_confirm_body}</p>
           </div>
         )}
 
         <form action={logIn} className="bg-surface border border-border rounded-2xl p-6 space-y-4 animate-in">
           <div>
-            <label className="block text-sm text-muted mb-1.5">Email</label>
+            <label className="block text-sm text-muted mb-1.5">{t.login_email}</label>
             <input
               name="email"
               type="email"
@@ -71,24 +77,24 @@ export default async function LoginPage({
             />
           </div>
           <div>
-            <label className="block text-sm text-muted mb-1.5">Mot de passe</label>
+            <label className="block text-sm text-muted mb-1.5">{t.login_password}</label>
             <PasswordInput name="password" placeholder="••••••••" required />
             <div className="text-right mt-1.5">
               <Link href="/forgot-password" className="text-accent text-xs">
-                Mot de passe oublié ?
+                {t.login_forgot}
               </Link>
             </div>
           </div>
 
           {error && <p className="text-danger text-sm">{error}</p>}
 
-          <SubmitButton pendingText="Connexion...">Se connecter</SubmitButton>
+          <SubmitButton pendingText={t.login_submit_pending}>{t.login_submit}</SubmitButton>
         </form>
 
         <p className="text-center text-muted text-sm mt-5">
-          Pas encore de compte ?{' '}
+          {t.login_no_account}{' '}
           <Link href="/signup" className="text-accent">
-            Crée-en un
+            {t.login_create_one}
           </Link>
         </p>
       </div>
