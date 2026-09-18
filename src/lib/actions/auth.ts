@@ -65,6 +65,26 @@ export async function signUpAssistant(formData: FormData) {
   redirect('/dashboard');
 }
 
+export async function signUpCoach(formData: FormData) {
+  const email = formData.get('email') as string;
+  const password = formData.get('password') as string;
+
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.signUp({ email, password });
+
+  if (error || !data.user) {
+    redirect(`/signup?role=coach&error=${encodeURIComponent(error?.message || 'Inscription impossible.')}`);
+  }
+
+  await supabase.from('coaches').insert({ id: data.user!.id });
+
+  if (!data.session) {
+    redirect('/login?info=confirm_email');
+  }
+
+  redirect('/coach');
+}
+
 export async function logIn(formData: FormData) {
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;

@@ -1,4 +1,4 @@
-import { signUpPlayer, signUpAssistant } from '@/lib/actions/auth';
+import { signUpPlayer, signUpAssistant, signUpCoach } from '@/lib/actions/auth';
 import { PasswordInput } from '@/components/PasswordInput';
 import { SubmitButton } from '@/components/SubmitButton';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
@@ -13,6 +13,7 @@ export default async function SignupPage({
 }) {
   const { role, error } = await searchParams;
   const isAssistant = role === 'assistant';
+  const isCoach = role === 'coach';
   const locale = await getLocale();
   const t = getDictionary(locale);
 
@@ -30,24 +31,32 @@ export default async function SignupPage({
         <div className="flex bg-surface-2 rounded-lg p-1 mb-5 border border-border">
           <Link
             href="/signup?role=joueur"
-            className={`flex-1 text-center py-2 rounded-md text-sm font-medium transition-colors ${
-              !isAssistant ? 'bg-accent-strong text-black' : 'text-muted'
+            className={`flex-1 text-center py-2 rounded-md text-xs font-medium transition-colors ${
+              !isAssistant && !isCoach ? 'bg-accent-strong text-black' : 'text-muted'
             }`}
           >
             {t.signup_role_player}
           </Link>
           <Link
             href="/signup?role=assistant"
-            className={`flex-1 text-center py-2 rounded-md text-sm font-medium transition-colors ${
+            className={`flex-1 text-center py-2 rounded-md text-xs font-medium transition-colors ${
               isAssistant ? 'bg-accent-strong text-black' : 'text-muted'
             }`}
           >
             {t.signup_role_assistant}
           </Link>
+          <Link
+            href="/signup?role=coach"
+            className={`flex-1 text-center py-2 rounded-md text-xs font-medium transition-colors ${
+              isCoach ? 'bg-accent-strong text-black' : 'text-muted'
+            }`}
+          >
+            {locale === 'en' ? "I'm a coach" : 'Je suis coach'}
+          </Link>
         </div>
 
         <form
-          action={isAssistant ? signUpAssistant : signUpPlayer}
+          action={isAssistant ? signUpAssistant : isCoach ? signUpCoach : signUpPlayer}
           className="bg-surface border border-border rounded-2xl p-6 space-y-4"
         >
           {isAssistant && (

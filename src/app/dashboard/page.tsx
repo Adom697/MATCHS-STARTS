@@ -113,7 +113,11 @@ export default async function DashboardPage() {
     }
   }
 
-  if (!player) redirect('/onboarding');
+  if (!player) {
+    const { data: coach } = await supabase.from('coaches').select('id').eq('id', user.id).maybeSingle();
+    if (coach) redirect('/coach');
+    redirect('/onboarding');
+  }
 
   const isGoalkeeper = player.position === 'Gardien';
   const STAT_LABELS = labelsForPosition(player.position, locale);
