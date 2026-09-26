@@ -87,6 +87,17 @@ export async function undoLastEvent(matchId: string) {
   revalidatePath(`/matches/${matchId}/live`);
 }
 
+export async function deleteMatch(matchId: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect('/login');
+
+  await supabase.from('matches').delete().eq('id', matchId);
+  redirect('/dashboard');
+}
+
 export async function finishMatch(formData: FormData) {
   const matchId = formData.get('match_id') as string;
   const team_score = formData.get('team_score') as string;

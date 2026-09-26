@@ -8,3 +8,9 @@ export async function adminSetPlan(targetId: string, newPlan: 'free' | 'pro') {
   await supabase.rpc('admin_set_plan', { target_id: targetId, new_plan: newPlan });
   revalidatePath('/admin');
 }
+
+export async function adminDeleteUser(targetId: string) {
+  const supabase = await createClient();
+  await supabase.rpc('admin_delete_user', { target_id: targetId });
+  revalidatePath('/admin');
+}

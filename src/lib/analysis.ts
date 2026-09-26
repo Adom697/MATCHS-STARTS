@@ -55,6 +55,18 @@ const OUTFIELD_RATIOS: RatioDef[] = [
       'Travail de la frappe en une touche sur centre',
     ],
   },
+  {
+    key: 'conservation',
+    title: 'Conservation du ballon',
+    success: 'ballons_recuperes',
+    total: (s) => (s.ballons_perdus || 0) + (s.ballons_recuperes || 0),
+    threshold: 0.45,
+    exercises: [
+      'Conduite de balle sous pression sans la perdre',
+      'Prise de décision rapide : garder, passer ou dégager',
+      'Renforcement du corps pour protéger le ballon en duel',
+    ],
+  },
 ];
 
 const DEFENDER_RATIOS: RatioDef[] = [

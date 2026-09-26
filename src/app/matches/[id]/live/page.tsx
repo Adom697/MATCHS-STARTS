@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
-import { finishMatch } from '@/lib/actions/live';
+import { finishMatch, deleteMatch } from '@/lib/actions/live';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { groupsForPosition } from '@/lib/live-groups';
@@ -91,6 +91,11 @@ export default async function LiveMatchPage({ params }: { params: Promise<{ id: 
               className="bg-accent-strong text-black font-semibold rounded-lg py-2.5 text-sm"
             >
               {t.live_close}
+            </button>
+          </form>
+          <form action={deleteMatch.bind(null, id)} className="mt-3 text-center">
+            <button type="submit" className="text-danger text-xs underline">
+              {locale === 'en' ? 'Delete this match' : 'Supprimer ce match'}
             </button>
           </form>
         </details>

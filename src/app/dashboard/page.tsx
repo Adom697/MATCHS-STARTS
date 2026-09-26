@@ -6,6 +6,7 @@ import { AnimatedNumber } from '@/components/AnimatedNumber';
 import { StadiumBackground } from '@/components/StadiumBackground';
 import { PlayerCardAvatar } from '@/components/PlayerCardAvatar';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
+import { becomeCoach } from '@/lib/actions/become-coach';
 import { getLocale } from '@/lib/locale';
 import { getDictionary, translatePosition } from '@/lib/i18n';
 
@@ -395,6 +396,14 @@ export default async function DashboardPage() {
             <p className="text-2xl font-mono font-bold text-accent tracking-widest">{player.invite_code}</p>
           </div>
         </section>
+      )}
+
+      {!isAssistant && (
+        <form action={becomeCoach} className="mt-4 text-center">
+          <button type="submit" className="text-muted text-xs underline">
+            Je suis aussi coach — accéder à l&apos;espace coach
+          </button>
+        </form>
       )}
     </div>
   );

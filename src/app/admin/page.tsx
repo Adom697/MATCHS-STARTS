@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { SignupsChart } from '@/components/AdminCharts';
-import { adminSetPlan } from '@/lib/actions/admin';
+import { adminSetPlan, adminDeleteUser } from '@/lib/actions/admin';
 
 const ADMIN_EMAIL = 'cedriccassy312@gmail.com';
 
@@ -198,18 +198,28 @@ export default async function AdminPage() {
                 <p className="text-muted text-xs mt-2">
                   Inscrit le {new Date(u.created_at).toLocaleDateString('fr-FR')}
                 </p>
-                <form action={adminSetPlan.bind(null, u.id, u.plan === 'pro' ? 'free' : 'pro')} className="mt-3">
-                  <button
-                    type="submit"
-                    className={`text-xs font-medium px-3 py-1.5 rounded-lg border transition-colors ${
-                      u.plan === 'pro'
-                        ? 'border-danger/40 text-danger hover:bg-danger/10'
-                        : 'border-accent-strong/40 text-accent hover:bg-accent-strong/10'
-                    }`}
-                  >
-                    {u.plan === 'pro' ? 'Repasser en Gratuit' : 'Activer Pro manuellement'}
-                  </button>
-                </form>
+                <div className="flex gap-2 mt-3">
+                  <form action={adminSetPlan.bind(null, u.id, u.plan === 'pro' ? 'free' : 'pro')}>
+                    <button
+                      type="submit"
+                      className={`text-xs font-medium px-3 py-1.5 rounded-lg border transition-colors ${
+                        u.plan === 'pro'
+                          ? 'border-danger/40 text-danger hover:bg-danger/10'
+                          : 'border-accent-strong/40 text-accent hover:bg-accent-strong/10'
+                      }`}
+                    >
+                      {u.plan === 'pro' ? 'Repasser en Gratuit' : 'Activer Pro manuellement'}
+                    </button>
+                  </form>
+                  <form action={adminDeleteUser.bind(null, u.id)}>
+                    <button
+                      type="submit"
+                      className="text-xs font-medium px-3 py-1.5 rounded-lg border border-danger/40 text-danger hover:bg-danger/10 transition-colors"
+                    >
+                      Supprimer le compte
+                    </button>
+                  </form>
+                </div>
               </div>
             ))}
             {userRows.length === 0 && !usersError && (

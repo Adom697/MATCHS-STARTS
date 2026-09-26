@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import { deleteMatch } from '@/lib/actions/live';
 
 const MIDFIELD_ATTACK_ROWS: { key: string; label: string }[] = [
   { key: 'touches', label: 'Touches de balle' },
@@ -132,6 +133,12 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ id
       ) : (
         <p className="text-muted text-sm">Aucune statistique enregistrée pour ce match.</p>
       )}
+
+      <form action={deleteMatch.bind(null, id)} className="mt-8 pt-6 border-t border-border text-center">
+        <button type="submit" className="text-danger text-sm underline">
+          Supprimer ce match
+        </button>
+      </form>
     </div>
   );
 }
