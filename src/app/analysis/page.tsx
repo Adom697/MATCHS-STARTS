@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { analyzeWeaknesses, type MatchStatsRow } from '@/lib/analysis';
+import { StadiumBackground } from '@/components/StadiumBackground';
 
 export default async function AnalysisPage() {
   const supabase = await createClient();
@@ -80,7 +81,8 @@ export default async function AnalysisPage() {
   };
 
   return (
-    <div className="min-h-screen px-5 py-8 max-w-2xl mx-auto">
+    <div className="min-h-screen px-5 py-8 max-w-2xl mx-auto relative">
+      <StadiumBackground src="/images/analysis-bg.jpg" overlay={0.72} />
       <Link href="/dashboard" className="text-muted text-sm mb-4 inline-block">
         ← Tableau de bord
       </Link>
