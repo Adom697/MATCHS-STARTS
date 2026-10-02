@@ -17,10 +17,11 @@ export async function POST(request: Request) {
   }
 
   const privateKey = process.env.KKIAPAY_PRIVATE_KEY;
+  const secretKey = process.env.KKIAPAY_SECRET_KEY;
   const publicKey = process.env.NEXT_PUBLIC_KKIAPAY_PUBLIC_KEY;
   const sandbox = process.env.NEXT_PUBLIC_KKIAPAY_SANDBOX === 'true';
 
-  if (!privateKey || !publicKey) {
+  if (!privateKey || !publicKey || !secretKey) {
     return NextResponse.json({ success: false, error: 'not_configured' }, { status: 500 });
   }
 
@@ -35,8 +36,10 @@ export async function POST(request: Request) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': publicKey,
-        Authorization: privateKey,
+        Accept: 'application/json',
+        'X-API-KEY': publicKey,
+        'X-PRIVATE-KEY': privateKey,
+        'X-SECRET-KEY': secretKey,
       },
       body: JSON.stringify({ transactionId }),
     });
@@ -47,7 +50,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: 'payment_not_successful' }, { status: 400 });
     }
 
-    const { error } = await supabase.from('players').update({ plan: 'pro' }).eq('id', user.id);
+    const proUntil = new Date();
+    proUntil.setDate(proUntil.getDate() + 30);
+
+    const { error } = await supabase
+      .from('players')
+      .update({ plan: 'pro', pro_until: proUntil.toISOString() })
+      .eq('id', user.id);
 
     if (error) {
       return NextResponse.json({ success: false, error: 'db_update_failed' }, { status: 500 });
